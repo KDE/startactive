@@ -25,10 +25,12 @@
 
 class StartActive: public QCoreApplication {
     Q_OBJECT
+
 public:
     StartActive(int argc, char ** argv);
     virtual ~StartActive();
 
+public Q_SLOTS:
     void start();
     void stop();
 

@@ -17,49 +17,33 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "StartActive.h"
-#include "startactiveadaptor.h"
+#ifndef SIGNALLISTENER_H_
+#define SIGNALLISTENER_H_
 
-#include <signal.h>
+#include <QObject>
 
-#include "SignalListener.h"
+class SignalListener: public QObject {
+    Q_OBJECT
 
-/**
- *
- */
-class StartActive::Private {
 public:
+    virtual ~SignalListener();
 
+    static SignalListener * self();
+
+    int registerSignal(int signal);
+
+Q_SIGNALS:
+    void signalReceived(int signal);
+
+protected Q_SLOTS:
+    void handleSignal();
+
+private:
+    SignalListener();
+
+    class Private;
+    Private * const d;
 };
 
-StartActive::StartActive(int argc, char ** argv)
-    : QCoreApplication(argc, argv),
-      d(new Private())
-{
-    QDBusConnection dbus = QDBusConnection::sessionBus();
-    new StartActiveAdaptor(this);
-    dbus.registerObject("/StartActive", this);
-
-    start();
-}
-
-StartActive::~StartActive()
-{
-    delete d;
-}
-
-void StartActive::start()
-{
-    SignalListener::self()->registerSignal(SIGHUP);
-    connect(SignalListener::self(), SIGNAL(signalReceived(int)),
-            this, SLOT(stop()));
-}
-
-void StartActive::stop()
-{
-    qDebug() << "The system wants us to quit.";
-
-    // Ignoring at the moment
-
-}
+#endif // SIGNALLISTENER_H_
 

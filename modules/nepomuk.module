@@ -1,0 +1,5 @@
+[Module]
+id=nepomuk
+exec=nepomukserver
+depends=
+dbus=org.kde.nepomuk.services.nepomukqueryservice

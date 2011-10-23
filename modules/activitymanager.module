@@ -1,0 +1,5 @@
+[Module]
+id=activitymanager
+exec=kactivitymanagerd
+depends=
+dbus=org.kde.kactivitymanagerd

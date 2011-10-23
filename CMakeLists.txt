@@ -12,8 +12,11 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+add_subdirectory(modules)
+
 set(startactive_SRC
     StartActive.cpp
+    SignalListener.cpp
     main.cpp
 )
 
