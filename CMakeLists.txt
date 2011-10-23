@@ -20,6 +20,15 @@ set(startactive_SRC
     main.cpp
 )
 
+set(MODULE_PATH "${DATA_INSTALL_DIR}/startactive/modules/")
+
+message(${MODULE_PATH})
+
+configure_file(
+    config-startactive.h.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/config-startactive.h
+)
+
 qt4_add_dbus_adaptor(
     startactive_SRC
     org.kde.StartActive.xml

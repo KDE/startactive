@@ -31,8 +31,16 @@ public:
     virtual ~StartActive();
 
 public Q_SLOTS:
-    void start();
-    void stop();
+    /**
+     * Loads the specified modules
+     * @param modules coma-separated list of modules
+     */
+    void load(const QString & modules);
+
+    /**
+     * Stops all modules and quits
+     */
+    void quit();
 
 private:
     class Private;

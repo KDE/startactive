@@ -1,6 +1,5 @@
 [Module]
 # This is a meta-module, no executable
 id=active
-exec=
 depends=plasma-device,plasma-keyboard,nepomuk,activitymanager,kded
-dbus=org.kde.plasma-device
+wait=none

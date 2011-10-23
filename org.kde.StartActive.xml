@@ -3,9 +3,7 @@
   <interface name="org.kde.StartActive">
 
     <!-- service control methods -->
-    <method name="start">
-    </method>
-    <method name="stop">
+    <method name="quit">
     </method>
 
 

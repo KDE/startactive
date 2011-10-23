@@ -2,4 +2,4 @@
 id=kdeinit
 exec=kdeinit4
 depends=nepomuk,activitymanager
-dbus=
+wait=end
