@@ -26,12 +26,18 @@
 
 #include "SignalListener.h"
 #include "config-startactive.h"
+#include "ProcessStarter.h"
 
 /**
  *
  */
 class StartActive::Private {
 public:
+    Private(StartActive * parent)
+        : q(parent)
+    {
+    }
+
     enum WaitMode {
         DontWait = 0,
         WaitForDbus = 1,
@@ -51,6 +57,7 @@ public:
 
     QHash < QString, Module * > modules;
     QHash < QString, QSet < QString > > requires;
+    QHash < QString, QSet < QString > > depends;
     QHash < int, QSet < QString > > runOrder;
 
     QString modulePattern;
@@ -59,11 +66,12 @@ public:
     void startFreeModules();
     void startModule(const QString & module);
 
+    StartActive * const q;
 };
 
 StartActive::StartActive(int argc, char ** argv)
     : QCoreApplication(argc, argv),
-      d(new Private())
+      d(new Private(this))
 {
     QDBusConnection dbus = QDBusConnection::sessionBus();
 
@@ -168,15 +176,19 @@ void StartActive::Private::readModuleData(const QString & module)
         ) {
             qDebug() << "adding" << dep;
             scheduled << dep;
+
+            depends[dep] += module;
         }
     }
-    qDebug() << scheduled;
+    qDebug() << "scheduled" << scheduled;
 }
 
 void StartActive::Private::startFreeModules()
 {
     QSet < QString > starting = runOrder[0];
     runOrder[0].clear();
+
+    qDebug() << "Free modules" << starting;
 
     foreach (const QString & module, starting) {
         startModule(module);
@@ -187,5 +199,33 @@ void StartActive::Private::startFreeModules()
 void StartActive::Private::startModule(const QString & module)
 {
     qDebug() << "Starting " << module;
+    Module * data = modules[module];
 
+    new ProcessStarter(
+            module,
+            data->exec,
+            q,
+            "moduleStarted",
+            data->dbus
+        );
+}
+
+void StartActive::moduleStarted(const QString & module)
+{
+    qDebug() << "module started" << module << d->runOrder.size();
+    d->runOrder[0] -= module;
+
+    for (int level = 0; level < d->runOrder.size(); level++) {
+        foreach (const QString & dep,
+                d->runOrder[level].intersect(d->depends[module])) {
+            qDebug() << "module" << module << "found in" << level << "moved";
+            d->runOrder[level] -= dep;
+            d->runOrder[level - 1] += dep;
+        }
+
+        if (level > 10) return;
+        qDebug() << "new level" << level << d->runOrder[level - 1] << d->runOrder.size();
+    }
+
+    d->startFreeModules();
 }

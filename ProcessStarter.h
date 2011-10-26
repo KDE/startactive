@@ -17,37 +17,35 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef STARTACTIVE_H_
-#define STARTACTIVE_H_
+#ifndef PROCESSSTARTER_H_
+#define PROCESSSTARTER_H_
 
-#include <QCoreApplication>
-#include <QDBusConnection>
+#include <QObject>
 
-class StartActive: public QCoreApplication {
+/**
+ * ProcessStarter
+ */
+class ProcessStarter: public QObject {
     Q_OBJECT
 
 public:
-    StartActive(int argc, char ** argv);
-    virtual ~StartActive();
+    ProcessStarter(
+            const QString & id,
+            const QString & exec,
+            QObject * target,
+            const QString & slot,
+            const QString & dbus = QString()
+            );
+    virtual ~ProcessStarter();
 
-public Q_SLOTS:
-    /**
-     * Loads the specified modules
-     * @param modules coma-separated list of modules
-     */
-    void load(const QString & modules);
-
-    /**
-     * Stops all modules and quits
-     */
-    void quit();
-
-    void moduleStarted(const QString & module);
+private Q_SLOTS:
+    void processFinished();
 
 private:
     class Private;
     Private * const d;
 };
 
-#endif // STARTACTIVE_H_
+
+#endif // PROCESSSTARTER_H_
 

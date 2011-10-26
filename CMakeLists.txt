@@ -17,6 +17,7 @@ add_subdirectory(modules)
 set(startactive_SRC
     StartActive.cpp
     SignalListener.cpp
+    ProcessStarter.cpp
     main.cpp
 )
 
