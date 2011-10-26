@@ -58,7 +58,7 @@ public:
     QHash < QString, Module * > modules;
     QHash < QString, QSet < QString > > requires;
     QHash < QString, QSet < QString > > depends;
-    QHash < int, QSet < QString > > runOrder;
+    QList < QSet < QString > > runOrder;
 
     QString modulePattern;
 
@@ -121,7 +121,7 @@ void StartActive::load(const QString & modules)
     }
 
     // debugging
-    foreach(int level, d->runOrder.keys()) {
+    for (int level = 0; level < d->runOrder.size(); level++) {
         qDebug() << level << " - " << d->runOrder[level];
     }
 
@@ -154,18 +154,14 @@ void StartActive::Private::readModuleData(const QString & module)
 
     }
 
-    // qDebug() << data->exec << data->wait << data->dbus
-    //     << config.contains("Module/id")
-    //     << config.value("Module/id")
-    //     << config.value("Module/exec")
-    //     << config.value("Module/depends")
-    //     << config.value("Module/id")
-    //     ;
-
     modules[module] = data;
 
     const QSet < QString > & dependsOn =
         config.value("Module/depends", QStringList()).toStringList().toSet();
+
+    while (runOrder.size() <= dependsOn.count()) {
+        runOrder << QSet < QString > ();
+    }
     runOrder[dependsOn.count()] << module;
     requires[module] += dependsOn;
 
@@ -219,12 +215,9 @@ void StartActive::moduleStarted(const QString & module)
         foreach (const QString & dep,
                 d->runOrder[level].intersect(d->depends[module])) {
             qDebug() << "module" << module << "found in" << level << "moved";
-            d->runOrder[level] -= dep;
+            d->runOrder[level]     -= dep;
             d->runOrder[level - 1] += dep;
         }
-
-        if (level > 10) return;
-        qDebug() << "new level" << level << d->runOrder[level - 1] << d->runOrder.size();
     }
 
     d->startFreeModules();

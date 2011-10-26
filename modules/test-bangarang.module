@@ -1,6 +1,5 @@
 [Module]
 id=test-bangarang
-#exec=/bin/bash -c 'sleep 3 && bangarang'
 exec=bangarang
 wait=dbus
 dbus=org.mpris.bangarang

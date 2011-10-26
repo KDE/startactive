@@ -1,4 +1,4 @@
 [Module]
 id=test-kate
 exec=kate
-depends=test-bangarang
+depends=test-bangarang,test-sleep
