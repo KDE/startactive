@@ -3,3 +3,4 @@ id=nepomuk
 exec=nepomukserver
 wait=dbus
 dbus=org.kde.nepomuk.services.nepomukqueryservice
+depends=prestart

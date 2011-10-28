@@ -1,0 +1,6 @@
+[Module]
+id=plasma-keyboard
+exec=plasma-keyboardcontainer
+wait=dbus
+dbus=org.kde.plasma-keyboardcontainer
+depends=plasma-device

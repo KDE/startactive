@@ -43,10 +43,11 @@ ProcessStarter::ProcessStarter(
     d->target = target;
     d->slot = slot;
 
-    QProcess * process = new QProcess(this);
+    if (exec.isEmpty()) {
+        processFinished();
+    }
 
-    qDebug() << "exec process" << exec << "wait for" << dbus;
-    process->start(exec);
+    QProcess * process = new QProcess(this);
 
     if (dbus.isEmpty()) {
         qDebug() << "Waiting for the process to end...";
@@ -63,6 +64,9 @@ ProcessStarter::ProcessStarter(
                 this, SLOT(processFinished()));
 
     }
+
+    qDebug() << "exec process" << exec << "wait for" << dbus;
+    process->start(exec);
 }
 
 ProcessStarter::~ProcessStarter()

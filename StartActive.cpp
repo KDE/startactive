@@ -62,12 +62,21 @@ public:
 
     QString modulePattern;
 
-    void readModuleData(const QString & module);
+    void readModuleData(const QString module);
     void startFreeModules();
     void startModule(const QString & module);
+    void printLevels();
 
     StartActive * const q;
 };
+
+void StartActive::Private::printLevels()
+{
+    // debugging
+    for (int level = 0; level < runOrder.size(); level++) {
+        qDebug() << level << " - " << runOrder[level];
+    }
+}
 
 StartActive::StartActive(int argc, char ** argv)
     : QCoreApplication(argc, argv),
@@ -120,17 +129,22 @@ void StartActive::load(const QString & modules)
         d->readModuleData(d->scheduled.first());
     }
 
-    // debugging
-    for (int level = 0; level < d->runOrder.size(); level++) {
-        qDebug() << level << " - " << d->runOrder[level];
+    d->printLevels();
+
+    foreach (const QString & module, d->depends.keys()) {
+        qDebug() << "module" << module << "is a prerequisite of" << d->depends[module];
     }
 
-    qDebug() << "STARTING";
+    foreach (const QString & module, d->requires.keys()) {
+        qDebug() << "module" << module << "depends on" << d->requires[module];
+    }
+
+    qDebug() << "\n\n\nSTARTING";
 
     d->startFreeModules();
 }
 
-void StartActive::Private::readModuleData(const QString & module)
+void StartActive::Private::readModuleData(const QString module)
 {
     if (module.isEmpty() || modules.contains(module) || running.contains(module)) return;
 
@@ -159,28 +173,37 @@ void StartActive::Private::readModuleData(const QString & module)
     const QSet < QString > & dependsOn =
         config.value("Module/depends", QStringList()).toStringList().toSet();
 
-    while (runOrder.size() <= dependsOn.count()) {
+    int order = dependsOn.count();
+    if (order == 1 && dependsOn.contains(QString())) {
+        order = 0;
+    }
+
+    while (runOrder.size() <= order) {
         runOrder << QSet < QString > ();
     }
-    runOrder[dependsOn.count()] << module;
-    requires[module] += dependsOn;
 
-    foreach (const QString & dep, dependsOn) {
-        if (!running.contains(dep)
-                && !scheduled.contains(dep)
-                && !modules.contains(dep)
-        ) {
-            qDebug() << "adding" << dep;
-            scheduled << dep;
+    runOrder[order] << module;
 
-            depends[dep] += module;
+    if (order) {
+        requires[module] += dependsOn;
+
+        foreach (const QString & dep, dependsOn) {
+            depends[dep] << module;
+
+            if (!running.contains(dep)
+                    && !scheduled.contains(dep)
+                    && !modules.contains(dep)
+            ) {
+                scheduled << dep;
+            }
         }
     }
-    qDebug() << "scheduled" << scheduled;
 }
 
 void StartActive::Private::startFreeModules()
 {
+    printLevels();
+
     QSet < QString > starting = runOrder[0];
     runOrder[0].clear();
 
@@ -209,12 +232,18 @@ void StartActive::Private::startModule(const QString & module)
 void StartActive::moduleStarted(const QString & module)
 {
     qDebug() << "module started" << module << d->runOrder.size();
+    d->printLevels();
+
     d->runOrder[0] -= module;
 
+    qDebug() << "Modules that depend on the current one:" << d->depends[module];
+
     for (int level = 0; level < d->runOrder.size(); level++) {
-        foreach (const QString & dep,
-                d->runOrder[level].intersect(d->depends[module])) {
-            qDebug() << "module" << module << "found in" << level << "moved";
+        QSet < QString > intersection = d->runOrder[level];
+        intersection.intersect(d->depends[module]);
+
+        foreach (const QString & dep, intersection) {
+            qDebug() << "module" << dep << "found in" << level << "moved";
             d->runOrder[level]     -= dep;
             d->runOrder[level - 1] += dep;
         }

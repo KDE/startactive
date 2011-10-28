@@ -3,3 +3,4 @@ id=activitymanager
 exec=kactivitymanagerd
 wait=dbus
 dbus=org.kde.kactivitymanagerd
+depends=nepomuk

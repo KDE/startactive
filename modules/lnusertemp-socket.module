@@ -1,0 +1,5 @@
+[Module]
+id=lnusertemp-socket
+exec=/media/other/opt/kde/usr/kde/lib/kde4/libexec/lnusertemp socket
+depends=kstartupconfig
+wait=end
