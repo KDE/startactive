@@ -1,5 +1,0 @@
-[Module]
-id=lnusertemp-cache
-exec=/media/other/opt/kde/usr/kde/lib/kde4/libexec/lnusertemp cache
-depends=kstartupconfig
-wait=end

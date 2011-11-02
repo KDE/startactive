@@ -17,7 +17,9 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <QTextStream>
 #include "StartActive.h"
+
 #include "startactiveadaptor.h"
 
 #include <signal.h>
@@ -27,6 +29,8 @@
 #include "SignalListener.h"
 #include "config-startactive.h"
 #include "ProcessStarter.h"
+
+#include "splash/SplashWindow.h"
 
 /**
  *
@@ -68,6 +72,9 @@ public:
     void printLevels();
 
     StartActive * const q;
+
+    int modulesFinished;
+    int stage;
 };
 
 void StartActive::Private::printLevels()
@@ -78,8 +85,8 @@ void StartActive::Private::printLevels()
     }
 }
 
-StartActive::StartActive(int argc, char ** argv)
-    : QCoreApplication(argc, argv),
+StartActive::StartActive(/*Display * display,*/ int argc, char ** argv)
+    : QApplication(/*display,*/ argc, argv),
       d(new Private(this))
 {
     QDBusConnection dbus = QDBusConnection::sessionBus();
@@ -103,7 +110,11 @@ StartActive::StartActive(int argc, char ** argv)
     int id = arguments().indexOf("--modules");
     if (id != -1 && id < arguments().size() - 1) {
         load(arguments()[id + 1]);
+    } else {
+        load("active");
     }
+
+    SplashWindow::init();
 }
 
 StartActive::~StartActive()
@@ -129,7 +140,7 @@ void StartActive::load(const QString & modules)
         d->readModuleData(d->scheduled.first());
     }
 
-    d->printLevels();
+    // d->printLevels();
 
     foreach (const QString & module, d->depends.keys()) {
         qDebug() << "module" << module << "is a prerequisite of" << d->depends[module];
@@ -139,7 +150,10 @@ void StartActive::load(const QString & modules)
         qDebug() << "module" << module << "depends on" << d->requires[module];
     }
 
-    qDebug() << "\n\n\nSTARTING";
+    qDebug() << "\n\n\nSTARTING, total:" << d->modules.keys() << d->modules.size();
+
+    d->modulesFinished = 0;
+    d->stage = 0;
 
     d->startFreeModules();
 }
@@ -202,23 +216,46 @@ void StartActive::Private::readModuleData(const QString module)
 
 void StartActive::Private::startFreeModules()
 {
-    printLevels();
+    // printLevels();
 
     QSet < QString > starting = runOrder[0];
     runOrder[0].clear();
 
-    qDebug() << "Free modules" << starting;
+    qDebug() << "Free modules" << starting << running;
 
-    foreach (const QString & module, starting) {
-        startModule(module);
+    if (starting.size() == 0 && running.size() == 0) {
+        SplashWindow::close();
+
+        int leftCount = 0;
+        foreach (const QSet < QString > & left, runOrder) {
+            leftCount += left.size();
+        }
+
+        if (leftCount > 0) {
+            qDebug() << "ERROR:" << leftCount << "modules not started - dead-lock detected";
+        } else {
+            qDebug() << "##### Starting finished. We are all live and well";
+        }
+
+    } else {
+        foreach (const QString & module, starting) {
+            startModule(module);
+        }
     }
 
 }
 
 void StartActive::Private::startModule(const QString & module)
 {
+    if (module.isEmpty()) return;
+
     qDebug() << "Starting " << module;
     Module * data = modules[module];
+
+    if (data->wait != DontWait) {
+        running += module;
+    }
+    qDebug() << "Running modules" << running;
 
     new ProcessStarter(
             module,
@@ -232,6 +269,20 @@ void StartActive::Private::startModule(const QString & module)
 void StartActive::moduleStarted(const QString & module)
 {
     qDebug() << "module started" << module << d->runOrder.size();
+    d->modulesFinished++;
+
+    d->running -= module;
+    qDebug() << "Running modules" << d->running;
+
+    int _stage = ceil((d->modulesFinished / (qreal) d->modules.size()) * STAGE_COUNT);
+    if (d->stage != _stage) {
+        // send the event to the splash
+        d->stage = _stage;
+        qDebug() << "SPLASH STAGE" << d->stage;
+
+        SplashWindow::setStage(d->stage);
+    }
+
     d->printLevels();
 
     d->runOrder[0] -= module;

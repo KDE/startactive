@@ -1,5 +1,0 @@
-[Module]
-id=kdeinit
-exec=/opt/kde/usr/kde/lib/kde4/libexec/start_kdeinit_wrapper +kcminit_startup
-depends=nepomuk,lnusertemp
-wait=end

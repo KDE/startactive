@@ -31,5 +31,6 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    return StartActive(argc, argv).exec();
+    // Display * display = XOpenDisplay(NULL);
+    return StartActive(/*display,*/ argc, argv).exec();
 }

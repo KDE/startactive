@@ -22,6 +22,7 @@
 #include <QProcess>
 #include <QDBusServiceWatcher>
 #include <QDBusConnection>
+#include <QDBusConnectionInterface>
 #include <QDebug>
 
 class ProcessStarter::Private {
@@ -54,6 +55,10 @@ ProcessStarter::ProcessStarter(
         connect(process, SIGNAL(finished(int, QProcess::ExitStatus)),
                 this, SLOT(processFinished()));
 
+    } else if (QDBusConnection::sessionBus().interface()->isServiceRegistered(dbus)) {
+        processFinished();
+        return;
+
     } else {
         qDebug() << "Wating for the dbus service...";
         QDBusServiceWatcher * watcher = new QDBusServiceWatcher(
@@ -62,7 +67,6 @@ ProcessStarter::ProcessStarter(
 
         connect(watcher, SIGNAL(serviceRegistered(QString)),
                 this, SLOT(processFinished()));
-
     }
 
     qDebug() << "exec process" << exec << "wait for" << dbus;

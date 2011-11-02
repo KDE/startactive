@@ -1,3 +1,0 @@
-[Module]
-id=lnusertemp
-depends=lnusertemp-tmp,lnusertemp-cache,lnusertemp-socket

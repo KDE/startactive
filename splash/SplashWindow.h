@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2011 Ivan Cukic <ivan.cukic(at)kde.org>
+ *   Copyright (C) 2010 Ivan Cukic <ivan.cukic(at)kde.org>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License version 2,
@@ -17,39 +17,33 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef STARTACTIVE_H_
-#define STARTACTIVE_H_
+#ifndef SPLASH_WINDOW_H_
+#define SPLASH_WINDOW_H_
 
-#include <QApplication>
-#include <QDBusConnection>
+#include <QDeclarativeView>
 
-// #include <X11/Xlib.h>
+class QResizeEvent;
+class QMouseEvent;
+class QKeyEvent;
 
-class StartActive: public QApplication {
-    Q_OBJECT
-
+class SplashWindow: public QDeclarativeView {
 public:
-    StartActive(/*Display * display,*/ int argc, char ** argv);
-    virtual ~StartActive();
+    static void init();
+    static void setStage(int stage);
+    static void close();
 
-public Q_SLOTS:
-    /**
-     * Loads the specified modules
-     * @param modules coma-separated list of modules
-     */
-    void load(const QString & modules);
-
-    /**
-     * Stops all modules and quits
-     */
-    void quit();
-
-    void moduleStarted(const QString & module);
+protected:
+    virtual void resizeEvent(QResizeEvent *event);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void closeEvent(QCloseEvent * event);
 
 private:
-    class Private;
-    Private * const d;
+    SplashWindow();
+
+    int m_stage;
+    bool m_testing;
+
+    static SplashWindow * s_instance;
 };
 
-#endif // STARTACTIVE_H_
-
+#endif // SPLASH_WINDOW_H_

@@ -1,5 +1,0 @@
-[Module]
-id=lnusertemp-tmp
-exec=/media/other/opt/kde/usr/kde/lib/kde4/libexec/lnusertemp tmp
-depends=kstartupconfig
-wait=end
