@@ -1,0 +1,5 @@
+[Module]
+id=contour
+exec=contour
+wait=dbus
+depends=prestart
