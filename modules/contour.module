@@ -1,0 +1,6 @@
+[Module]
+id=contour
+exec=contour
+wait=dbus
+dbus=org.kde.Contour
+depends=nepomuk

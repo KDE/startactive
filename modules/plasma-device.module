@@ -3,4 +3,4 @@ id=plasma-device
 exec=plasma-device
 wait=dbus
 dbus=org.kde.plasma-device
-depends=nepomuk,activitymanager
+depends=nepomuk,activitymanager,contour
