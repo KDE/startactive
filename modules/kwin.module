@@ -1,0 +1,5 @@
+[Module]
+id=kwin
+exec=kwin_gles
+wait=dbus
+depends=prestart
