@@ -23,7 +23,9 @@ set(startactive_SRC
     main.cpp
 )
 
+set(KDE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 set(MODULE_PATH "${DATA_INSTALL_DIR}/startactive/modules/")
+set(STARTACTIVE_DATA_PATH "${DATA_INSTALL_DIR}/startactive/")
 set(KDE_DATADIR "${DATA_INSTALL_DIR}")
 set(KDE_DEFAULT_HOME ".kde")
 
@@ -32,6 +34,11 @@ message(${MODULE_PATH})
 configure_file(
     config-startactive.h.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/config-startactive.h
+)
+
+configure_file(
+    env.conf.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/env.conf
 )
 
 qt4_add_dbus_adaptor(
@@ -61,5 +68,10 @@ install(
     TARGETS
     startactive
     ${INSTALL_TARGETS_DEFAULT_ARGS}
+)
+
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/env.conf
+    DESTINATION ${STARTACTIVE_DATA_PATH}
 )
 

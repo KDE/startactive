@@ -23,6 +23,7 @@
 #include "startactiveadaptor.h"
 
 #include <signal.h>
+#include <stdlib.h>
 
 #include <QSettings>
 
@@ -71,6 +72,9 @@ public:
     void startModule(const QString & module);
     void printLevels();
 
+    void initEnvironment();
+    void initDBus();
+
     StartActive * const q;
 
     int modulesFinished;
@@ -89,15 +93,8 @@ StartActive::StartActive(/*Display * display,*/ int argc, char ** argv)
     : QApplication(/*display,*/ argc, argv),
       d(new Private(this))
 {
-    QDBusConnection dbus = QDBusConnection::sessionBus();
-
-    new StartActiveAdaptor(this);
-
-    // Proper object name
-    dbus.registerObject("/StartActive", this);
-
-    // For the compatibility with kquitapp
-    dbus.registerObject("/MainApplication", this);
+    d->initEnvironment();
+    d->initDBus();
 
     // We have to deinitialize before quitting. So, we need to process
     // SIGHUP our way
@@ -128,6 +125,69 @@ void StartActive::quit()
 
     // Ignoring at the moment
 
+}
+
+void StartActive::Private::initDBus()
+{
+    // Check whether dbus process is running
+    if (! ::getenv("DBUS_SESSION_BUS_ADDRESS")) {
+        QProcess app;
+        app.start("dbus-launch");
+
+        app.waitForFinished();
+
+        char buf[1024];
+
+        qint64 lineLength;
+
+        while ((lineLength = app.readLine(buf, sizeof(buf))) != -1) {
+            QString line = QString(buf).trimmed();
+
+            int pos = line.indexOf('=');
+
+            const QString & key = line.left(pos);
+            const QString & value = line.mid(pos + 1);
+
+            qDebug() << "DBUS" << key << "=" << value;
+
+            ::setenv(
+                    key.toAscii(),
+                    value.toAscii(),
+                    1
+                );
+
+        }
+    }
+
+    QDBusConnection dbus = QDBusConnection::sessionBus();
+
+    new StartActiveAdaptor(q);
+
+    // Proper object name
+    dbus.registerObject("/StartActive", q);
+
+    // For the compatibility with kquitapp
+    dbus.registerObject("/MainApplication", q);
+}
+
+void StartActive::Private::initEnvironment()
+{
+    QSettings config(QString(STARTACTIVE_DATA_PATH) + "/env.conf", QSettings::IniFormat);
+
+    qDebug() << "Setting environment variables:";
+
+    foreach (const QString & key, config.allKeys()) if (key[0] != '#') {
+        QString value = config.value(key).toString();
+
+        qDebug() << key << "=" << value;
+
+        ::setenv(
+                key.toAscii(),
+                value.toAscii(),
+                1
+            );
+
+    }
 }
 
 void StartActive::load(const QString & modules)
