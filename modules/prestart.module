@@ -1,4 +1,4 @@
 [Module]
 id=prestart
-depends=kstartupconfig,lnusertemp,krandrstartup
+depends=kstartupconfig,lnusertemp
 wait=end
