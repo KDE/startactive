@@ -45,7 +45,9 @@ ProcessStarter::ProcessStarter(
     d->slot = slot;
 
     if (exec.isEmpty()) {
-        processFinished();
+        qDebug() << "Nothing to exec - meta-module";
+        QMetaObject::invokeMethod(this, "processFinished", Qt::QueuedConnection);
+        return;
     }
 
     QProcess * process = new QProcess(this);

@@ -297,6 +297,7 @@ void StartActive::Private::startFreeModules()
 
         if (leftCount > 0) {
             qDebug() << "ERROR:" << leftCount << "modules not started - dead-lock detected";
+            printLevels();
         } else {
             qDebug() << "##### Starting finished. We are all live and well";
         }

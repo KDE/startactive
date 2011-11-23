@@ -48,12 +48,12 @@ qt4_add_dbus_adaptor(
 )
 
 kde4_add_executable(
-    startactive
+    startactive.bin
     ${startactive_SRC}
 )
 
 target_link_libraries(
-    startactive
+    startactive.bin
     ${QT_QTCORE_LIBRARY}
     ${QT_QTDBUS_LIBRARY}
     ${X11_LIBRARIES}
@@ -64,14 +64,22 @@ target_link_libraries(
     # ${KDE4_KDECORE_LIBS}
 )
 
+message(${INSTALL_TARGETS_DEFAULT_ARGS})
+
 install(
     TARGETS
-    startactive
+    startactive.bin
     ${INSTALL_TARGETS_DEFAULT_ARGS}
 )
 
 install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/env.conf
     DESTINATION ${STARTACTIVE_DATA_PATH}
+)
+
+install(
+    FILES startactive
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
+    PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 )
 
