@@ -80,7 +80,7 @@ SplashWindow::SplashWindow()
     rootContext()->setContextProperty("screenSize", size());
 
     int id = QApplication::arguments().indexOf("--splash");
-    QString theme = "activeair";
+    QString theme = "ActiveAir";
 
     if (id != -1 && id < QApplication::arguments().size() - 1) {
         theme = QApplication::arguments()[id + 1];
