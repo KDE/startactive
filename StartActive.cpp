@@ -129,6 +129,8 @@ void StartActive::quit()
 
 void StartActive::Private::initDBus()
 {
+    qDebug() << "Initializing DBus";
+
     // Check whether dbus process is running
     if (! ::getenv("DBUS_SESSION_BUS_ADDRESS")) {
         QProcess app;
@@ -157,6 +159,8 @@ void StartActive::Private::initDBus()
                 );
 
         }
+    } else {
+        qDebug() << "DBus already running at:" << ::getenv("DBUS_SESSION_BUS_ADDRESS");
     }
 
     QDBusConnection dbus = QDBusConnection::sessionBus();
