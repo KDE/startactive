@@ -85,7 +85,7 @@ void StartActive::Private::printLevels()
 {
     // debugging
     for (int level = 0; level < runOrder.size(); level++) {
-        qDebug() << level << " - " << runOrder[level];
+        qDebug() << "StartActive:\t" << level << " - " << runOrder[level];
     }
 }
 
@@ -121,7 +121,7 @@ StartActive::~StartActive()
 
 void StartActive::quit()
 {
-    qDebug() << "The system wants us to quit.";
+    qDebug() << "StartActive:\t" << "The system wants us to quit.";
 
     // Ignoring at the moment
 
@@ -129,7 +129,8 @@ void StartActive::quit()
 
 void StartActive::Private::initDBus()
 {
-    qDebug() << "Initializing DBus";
+    qDebug() << "\n\n--- StartActive -----------------------------------------";
+    qDebug() << "StartActive:\t" << "Initializing DBus";
 
     // Check whether dbus process is running
     if (! ::getenv("DBUS_SESSION_BUS_ADDRESS")) {
@@ -150,7 +151,7 @@ void StartActive::Private::initDBus()
             const QString & key = line.left(pos);
             const QString & value = line.mid(pos + 1);
 
-            qDebug() << "DBUS" << key << "=" << value;
+            qDebug() << "StartActive:\t" << "DBUS" << key << "=" << value;
 
             ::setenv(
                     key.toAscii(),
@@ -160,7 +161,7 @@ void StartActive::Private::initDBus()
 
         }
     } else {
-        qDebug() << "DBus already running at:" << ::getenv("DBUS_SESSION_BUS_ADDRESS");
+        qDebug() << "StartActive:\t" << "DBus already running at:" << ::getenv("DBUS_SESSION_BUS_ADDRESS");
     }
 
     QDBusConnection dbus = QDBusConnection::sessionBus();
@@ -176,14 +177,15 @@ void StartActive::Private::initDBus()
 
 void StartActive::Private::initEnvironment()
 {
-    QSettings config(QString(STARTACTIVE_DATA_PATH) + "/env.conf", QSettings::IniFormat);
+    qDebug() << "\n\n--- StartActive -----------------------------------------";
+    qDebug() << "StartActive:\t" << "Setting environment variables:";
 
-    qDebug() << "Setting environment variables:";
+    QSettings config(QString(STARTACTIVE_DATA_PATH) + "/env.conf", QSettings::IniFormat);
 
     foreach (const QString & key, config.allKeys()) if (key[0] != '#') {
         QString value = config.value(key).toString();
 
-        qDebug() << key << "=" << value;
+        qDebug() << "StartActive:\t" << key << "=" << value;
 
         ::setenv(
                 key.toAscii(),
@@ -196,7 +198,7 @@ void StartActive::Private::initEnvironment()
 
 void StartActive::load(const QString & modules)
 {
-    qDebug() << "Loading modules: " << modules;
+    qDebug() << "StartActive:\t" << "Loading modules: " << modules;
 
     d->scheduled = modules.split(",");
 
@@ -206,15 +208,15 @@ void StartActive::load(const QString & modules)
 
     // d->printLevels();
 
-    foreach (const QString & module, d->depends.keys()) {
-        qDebug() << "module" << module << "is a prerequisite of" << d->depends[module];
-    }
+    // foreach (const QString & module, d->depends.keys()) {
+    //     qDebug() << "StartActive:\t" << "module" << module << "is a prerequisite of" << d->depends[module];
+    // }
 
-    foreach (const QString & module, d->requires.keys()) {
-        qDebug() << "module" << module << "depends on" << d->requires[module];
-    }
+    // foreach (const QString & module, d->requires.keys()) {
+    //     qDebug() << "StartActive:\t" << "module" << module << "depends on" << d->requires[module];
+    // }
 
-    qDebug() << "\n\n\nSTARTING, total:" << d->modules.keys() << d->modules.size();
+    // qDebug() << "StartActive:\t" << "\n\n\nSTARTING, total:" << d->modules.keys() << d->modules.size();
 
     d->modulesFinished = 0;
     d->stage = 0;
@@ -280,13 +282,13 @@ void StartActive::Private::readModuleData(const QString module)
 
 void StartActive::Private::startFreeModules()
 {
-    // printLevels();
-
     QSet < QString > starting = runOrder[0];
     runOrder[0].clear();
 
-    qDebug() << "Free modules" << starting << running;
+    qDebug() << "StartActive:\t" << "these are the currently running modules:" << running;
+    qDebug() << "StartActive:\t" << "starting the following modules:" << starting;
 
+    // Did we end or we are in a dead-lock
     if (starting.size() == 0 && running.size() == 0) {
         SplashWindow::close();
 
@@ -296,10 +298,11 @@ void StartActive::Private::startFreeModules()
         }
 
         if (leftCount > 0) {
-            qDebug() << "ERROR:" << leftCount << "modules not started - dead-lock detected";
+            qDebug() << "StartActive:\t" << "ERROR:" << leftCount << "modules not started - dead-lock detected";
             printLevels();
+
         } else {
-            qDebug() << "##### Starting finished. We are all live and well";
+            qDebug() << "StartActive:\t" << "##### Starting finished. We are all live and well";
         }
 
     } else {
@@ -314,37 +317,34 @@ void StartActive::Private::startModule(const QString & module)
 {
     if (module.isEmpty()) return;
 
-    qDebug() << "Starting " << module;
+    qDebug() << "StartActive:\t" << "starting module " << module;
     Module * data = modules[module];
 
     if (data->wait != DontWait) {
         running += module;
     }
-    qDebug() << "Running modules" << running;
 
+    // Starting even if the exec is empty, to have the notification that
+    // it has /finished/
     new ProcessStarter(
             module,
             data->exec,
-            q,
-            "moduleStarted",
+            q, "moduleStarted",
             data->dbus
         );
 }
 
 void StartActive::moduleStarted(const QString & module)
 {
-    qDebug() << "module started" << module << d->runOrder.size();
+    qDebug() << "StartActive:\t" << "module started" << module << d->runOrder.size();
     d->modulesFinished++;
 
     d->running -= module;
-    qDebug() << "Running modules" << d->running;
 
     int _stage = ceil((d->modulesFinished / (qreal) d->modules.size()) * STAGE_COUNT);
     if (d->stage != _stage) {
         // send the event to the splash
         d->stage = _stage;
-        qDebug() << "SPLASH STAGE" << d->stage;
-
         SplashWindow::setStage(d->stage);
     }
 
@@ -352,14 +352,13 @@ void StartActive::moduleStarted(const QString & module)
 
     d->runOrder[0] -= module;
 
-    qDebug() << "Modules that depend on the current one:" << d->depends[module];
+    qDebug() << "StartActive:\t" << "Modules that depend on the current one:" << d->depends[module];
 
     for (int level = 0; level < d->runOrder.size(); level++) {
         QSet < QString > intersection = d->runOrder[level];
         intersection.intersect(d->depends[module]);
 
         foreach (const QString & dep, intersection) {
-            qDebug() << "module" << dep << "found in" << level << "moved";
             d->runOrder[level]     -= dep;
             d->runOrder[level - 1] += dep;
         }

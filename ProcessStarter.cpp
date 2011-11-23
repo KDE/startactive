@@ -48,7 +48,7 @@ ProcessStarter::ProcessStarter(
     d->process = NULL;
 
     if (exec.isEmpty()) {
-        qDebug() << "Nothing to exec - meta-module";
+        qDebug() << "ProcessStarter:\t" << d->id << "nothing to exec - meta-module";
         QMetaObject::invokeMethod(this, "processFinished", Qt::QueuedConnection);
         return;
     }
@@ -58,7 +58,7 @@ ProcessStarter::ProcessStarter(
     d->process->setProcessEnvironment(QProcessEnvironment::systemEnvironment());
 
     if (dbus.isEmpty()) {
-        qDebug() << "Waiting for the process to end...";
+        qDebug() << "ProcessStarter:\t" << d->id << "will wait for the process to finish.";
         connect(d->process, SIGNAL(finished(int, QProcess::ExitStatus)),
                 this, SLOT(processFinished()));
 
@@ -67,7 +67,7 @@ ProcessStarter::ProcessStarter(
         return;
 
     } else {
-        qDebug() << "Wating for the dbus service...";
+        qDebug() << "ProcessStarter:\t" << d->id << "will wait for the dbus service" << dbus;
         QDBusServiceWatcher * watcher = new QDBusServiceWatcher(
                 dbus, QDBusConnection::sessionBus(),
                 QDBusServiceWatcher::WatchForRegistration, this);
@@ -76,23 +76,22 @@ ProcessStarter::ProcessStarter(
                 this, SLOT(processFinished()));
     }
 
-    qDebug() << "exec process" << exec << "wait for" << dbus;
+    qDebug() << "ProcessStarter:\t" << d->id << "exec process" << exec << "wait for" << dbus;
     d->process->start(exec);
 }
 
 ProcessStarter::~ProcessStarter()
 {
-    qDebug() << "Deleting ProcessStarter" << d->id;
     delete d;
 }
 
 void ProcessStarter::processFinished()
 {
-    qDebug() << "processFinished" << d->id;
+    qDebug() << "ProcessStarter:\t" << d->id << "process finished";
 
     if (d->process)
     if (d->process->processEnvironment() != QProcessEnvironment::systemEnvironment()) {
-        qDebug() << "process environment changed" <<
+        qDebug() << "ProcessStarter:\t" << d->id << "process environment changed" <<
             d->process->processEnvironment().toStringList();
 
     }
