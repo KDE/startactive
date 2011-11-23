@@ -1,5 +1,6 @@
 [Module]
 # This is a meta-module, no executable
 id=active
-depends=contour,ksmserver,kwin,plasma-device,plasma-keyboard
+depends=contour,ksmserver,kwin,plasma-device,plasma-keyboard,konsole
+
 wait=none

@@ -20,6 +20,7 @@
 #include "ProcessStarter.h"
 
 #include <QProcess>
+#include <QProcessEnvironment>
 #include <QDBusServiceWatcher>
 #include <QDBusConnection>
 #include <QDBusConnectionInterface>
@@ -30,6 +31,7 @@ public:
     QString id;
     QObject * target;
     QString slot;
+    QProcess * process;
 
 
 };
@@ -43,6 +45,7 @@ ProcessStarter::ProcessStarter(
     d->id = id;
     d->target = target;
     d->slot = slot;
+    d->process = NULL;
 
     if (exec.isEmpty()) {
         qDebug() << "Nothing to exec - meta-module";
@@ -50,11 +53,13 @@ ProcessStarter::ProcessStarter(
         return;
     }
 
-    QProcess * process = new QProcess(this);
+    d->process = new QProcess(this);
+
+    d->process->setProcessEnvironment(QProcessEnvironment::systemEnvironment());
 
     if (dbus.isEmpty()) {
         qDebug() << "Waiting for the process to end...";
-        connect(process, SIGNAL(finished(int, QProcess::ExitStatus)),
+        connect(d->process, SIGNAL(finished(int, QProcess::ExitStatus)),
                 this, SLOT(processFinished()));
 
     } else if (QDBusConnection::sessionBus().interface()->isServiceRegistered(dbus)) {
@@ -72,7 +77,7 @@ ProcessStarter::ProcessStarter(
     }
 
     qDebug() << "exec process" << exec << "wait for" << dbus;
-    process->start(exec);
+    d->process->start(exec);
 }
 
 ProcessStarter::~ProcessStarter()
@@ -84,6 +89,14 @@ ProcessStarter::~ProcessStarter()
 void ProcessStarter::processFinished()
 {
     qDebug() << "processFinished" << d->id;
+
+    if (d->process)
+    if (d->process->processEnvironment() != QProcessEnvironment::systemEnvironment()) {
+        qDebug() << "process environment changed" <<
+            d->process->processEnvironment().toStringList();
+
+    }
+
     QMetaObject::invokeMethod(
             d->target, d->slot.toAscii(),
             Qt::DirectConnection,

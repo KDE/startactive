@@ -1,5 +1,7 @@
 [Module]
 id=kwin
 exec=kwin_gles
-wait=dbus
 depends=prestart
+
+wait=dbus
+dbus=org.kde.kwin

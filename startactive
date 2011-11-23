@@ -2,6 +2,13 @@
 
 env > /tmp/startactive-${USER}.env
 
-unset DBUS_SESSION_BUS_ADDRESS
+# There's something wrong with d-bus invocation,
+# so we are doing a rather dirty forced-launch
+# before the real startactive is run
 
-startactive.bin &> /tmp/startactive-${USER}.log
+# unset DBUS_SESSION_BUS_ADDRESS
+# export `dbus-launch`
+#
+# sleep 3
+
+startactive.bin 2>&1 | tee /tmp/startactive-${USER}.log

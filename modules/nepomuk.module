@@ -1,6 +1,7 @@
 [Module]
 id=nepomuk
 exec=nepomukserver
+depends=prestart
+
 wait=dbus
 dbus=org.kde.nepomuk.services.nepomukqueryservice
-depends=prestart
