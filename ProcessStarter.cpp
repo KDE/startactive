@@ -56,6 +56,9 @@ ProcessStarter::ProcessStarter(
     d->process = new QProcess(this);
 
     d->process->setProcessEnvironment(QProcessEnvironment::systemEnvironment());
+    d->process->setProcessChannelMode(QProcess::ForwardedChannels);
+    // d->process->closeReadChannel(QProcess::StandardOutput);
+    // d->process->closeReadChannel(QProcess::StandardError);
 
     if (dbus.isEmpty()) {
         qDebug() << "ProcessStarter:\t" << d->id << "will wait for the process to finish.";
