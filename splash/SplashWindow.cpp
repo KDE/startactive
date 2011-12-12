@@ -116,9 +116,10 @@ void SplashWindow::resizeEvent(QResizeEvent *event)
 void SplashWindow::mousePressEvent(QMouseEvent *event)
 {
     QDeclarativeView::mousePressEvent(event);
-    if (!event->isAccepted()) {
+    //for mobile devices is better to not hide on click
+    /*if (!event->isAccepted()) {
         close();
-    }
+    }*/
 }
 
 void SplashWindow::closeEvent(QCloseEvent * event)
