@@ -1,18 +1,17 @@
 #!/bin/bash
 
-env > /tmp/startactive-${USER}.env
-
 # There's something wrong with d-bus invocation,
 # so we are doing a rather dirty forced-launch
 # before the real startactive is run
 
-pkill -u ${USER} dbus-launch
-pkill -u ${USER} dbus-daemon
+#pkill -u ${USER} dbus-launch
+#pkill -u ${USER} dbus-daemon
 
-unset DBUS_SESSION_BUS_ADDRESS
-unset DBUS_SESSION_BUS_PID
+#unset DBUS_SESSION_BUS_ADDRESS
+#unset DBUS_SESSION_BUS_PID
 
-export `dbus-launch`
-sleep 3
+#export `dbus-launch`
+#sleep 3
 
+env > /tmp/startactive-${USER}.env
 startactive.bin 2>&1 | tee /tmp/startactive-${USER}.log
