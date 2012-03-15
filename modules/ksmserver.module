@@ -3,4 +3,5 @@ id=ksmserver
 exec=kwrapper4 ksmserver --windowmanager kwin_gles
 depends=kdeinit,nepomuk
 
-#wait=end
+wait=dbus
+dbus=org.kde.ksmserver
