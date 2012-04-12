@@ -14,4 +14,4 @@
 #sleep 3
 
 env > /tmp/startactive-${USER}.env
-startactive.bin 2>&1 | tee /tmp/startactive-${USER}.log
+ck-launch-session startactive.bin 2>&1 | tee /tmp/startactive-${USER}.log
