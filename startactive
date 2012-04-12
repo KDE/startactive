@@ -14,4 +14,9 @@
 #sleep 3
 
 env > /tmp/startactive-${USER}.env
-ck-launch-session startactive.bin 2>&1 | tee /tmp/startactive-${USER}.log
+if [ -f /etc/mer-release ]; then
+    ck-launch-session startactive.bin 2>&1 | tee /tmp/startactive-${USER}.log
+else
+    startactive.bin 2>&1 | tee /tmp/startactive-${USER}.log
+fi
+
