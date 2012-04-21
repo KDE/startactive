@@ -79,6 +79,7 @@ public:
 
     int modulesFinished;
     int stage;
+    QTime time;
 };
 
 void StartActive::Private::printLevels()
@@ -93,6 +94,7 @@ StartActive::StartActive(/*Display * display,*/ int argc, char ** argv)
     : QApplication(/*display,*/ argc, argv),
       d(new Private(this))
 {
+    d->time.start();
     d->initEnvironment();
     d->initDBus();
 
@@ -302,7 +304,7 @@ void StartActive::Private::startFreeModules()
             printLevels();
 
         } else {
-            qDebug() << "StartActive:\t" << "##### Starting finished. We are all live and well";
+            qDebug() << "StartActive:\t" << "##### Starting finished. We are all live and well (" << time.elapsed() << "ms )";
         }
 
     } else {
@@ -336,7 +338,7 @@ void StartActive::Private::startModule(const QString & module)
 
 void StartActive::moduleStarted(const QString & module)
 {
-    qDebug() << "StartActive:\t" << "module started" << module << d->runOrder.size();
+    qDebug() << "StartActive:\t" << "module started" << module << d->runOrder.size() << "(" << d->time.elapsed() << "ms )";
     d->modulesFinished++;
 
     d->running -= module;
