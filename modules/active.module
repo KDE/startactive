@@ -3,4 +3,8 @@
 id=active
 depends=contour,ksmserver,plasma-device,plasma-keyboard
 
-wait=none
+# required to make entry "wait" work
+exec=/bin/true
+
+wait=dbus
+dbus=org.kde.DeviceNotifications
