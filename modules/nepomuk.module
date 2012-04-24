@@ -1,7 +1,7 @@
 [Module]
 id=nepomuk
 exec=nepomukserver
-depends=kde-default-skel,kdeinit
+depends=setup-kde-skel,kdeinit
 
 wait=dbus
 dbus=org.kde.nepomuk.services.nepomukqueryservice
