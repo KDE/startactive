@@ -2,5 +2,5 @@
 id=kdeinit
 #exec=@KDE_ROOT_DIR@/lib/kde4/libexec/start_kdeinit_wrapper +kcminit_startup
 exec=@KDE_ROOT_DIR@/lib/kde4/libexec/start_kdeinit_wrapper
-depends=kde-default-skel
+depends=setup-kde-skel
 wait=end
