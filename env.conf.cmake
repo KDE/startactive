@@ -8,7 +8,8 @@ KDE_FULL_SESSION=true
 PATH=@KDE_INSTALL_PREFIX@/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
 LD_LIBRARY_PATH=@KDE_INSTALL_PREFIX@/lib:/usr/lib/
 QT_PLUGIN_PATH=@KDE_INSTALL_PREFIX@/lib/kde4/plugins
-QT_IM_MODULE=PlasmaInputContext
+QT_PLUGIN_PATH=@KDE_INSTALL_PREFIX@/lib/kde4/imports
+QT_IM_MODULE=Maliit
 
 # HOME=...
 # KDEHOME=...
