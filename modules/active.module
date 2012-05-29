@@ -1,7 +1,7 @@
 [Module]
 # This is a meta-module, no executable
 id=active
-depends=contour,ksmserver,plasma-device,plasma-keyboard
+depends=contour,ksmserver,plasma-device
 
 # required to make entry "wait" work
 exec=/bin/true
