@@ -3,7 +3,7 @@
 # installation the setup will be skipt.
 
 
-if [ -d "${HOME}/.kde/share/config/plasma-device-appletsrc" ]; then  
+if [ -f "${HOME}/.kde/share/config/plasma-device-appletsrc" ]; then
    echo "${HOME}/.kde/share/config/plasma-device-appletsrc already exists, will not overwrite"
 else
    #enable the active plugin for Maliit
