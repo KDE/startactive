@@ -8,7 +8,9 @@ if [ -f "${HOME}/.kde/share/config/plasma-device-appletsrc" ]; then
 else
    #enable the active plugin for Maliit
    gconftool-2 --set "/maliit/onscreen/enabled" --type list --list-type=string [active-keyboard.qml,en_us]
-gconftool-2 --set "/maliit/onscreen/active" --type list --list-type=string [active-keyboard.qml,en_us]
+   gconftool-2 --set "/maliit/onscreen/active" --type list --list-type=string [active-keyboard.qml,en_us]
    # Copy the /etc/skel
-   cp -auR /etc/skel/.kde ${HOME}
+   if [ ! -d "${HOME}/.kde" ]; then
+       cp -auR /etc/skel/.kde ${HOME}
+   fi
 fi
