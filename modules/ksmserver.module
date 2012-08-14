@@ -1,6 +1,6 @@
 [Module]
 id=ksmserver
-exec=kwrapper4 ksmserver --windowmanager kwin_gles
+exec=kwrapper4 ksmserver --windowmanager kwinactive_gles
 depends=kdeinit,nepomuk
 
 wait=dbus
