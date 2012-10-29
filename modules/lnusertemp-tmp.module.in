@@ -1,4 +1,4 @@
 [Module]
 id=lnusertemp-tmp
-exec=@KDE_ROOT_DIR@/lib/kde4/libexec/lnusertemp tmp
+exec=@KDE4_LIBEXEC_INSTALL_DIR@/lnusertemp tmp
 wait=end

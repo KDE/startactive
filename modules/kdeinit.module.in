@@ -1,6 +1,6 @@
 [Module]
 id=kdeinit
-#exec=@KDE_ROOT_DIR@/lib/kde4/libexec/start_kdeinit_wrapper +kcminit_startup
-exec=@KDE_ROOT_DIR@/lib/kde4/libexec/start_kdeinit_wrapper
+#exec=@KDE4_LIBEXEC_INSTALL_DIR@/start_kdeinit_wrapper +kcminit_startup
+exec=@KDE4_LIBEXEC_INSTALL_DIR@/start_kdeinit_wrapper
 depends=setup-kde-skel
 wait=end

@@ -1,4 +1,4 @@
 [Module]
 id=lnusertemp-socket
-exec=@KDE_ROOT_DIR@/lib/kde4/libexec/lnusertemp socket
+exec=@KDE4_LIBEXEC_INSTALL_DIR@/lnusertemp socket
 wait=end

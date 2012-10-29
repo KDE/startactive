@@ -8,7 +8,8 @@ SET(inFiles
     lnusertemp-tmp.module
     )
 
-set(KDE_ROOT_DIR ${CMAKE_INSTALL_PREFIX})
+# FindKDE4Internal defines KDE4_LIBEXEC_INSTALL_DIR
+# which is used by configure_file to set the right paths
 
 FOREACH(infileName ${inFiles})
     MESSAGE(STATUS "Process file: ${infileName}")

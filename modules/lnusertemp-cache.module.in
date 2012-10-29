@@ -1,4 +1,4 @@
 [Module]
 id=lnusertemp-cache
-exec=@KDE_ROOT_DIR@/lib/kde4/libexec/lnusertemp cache
+exec=@KDE4_LIBEXEC_INSTALL_DIR@/lnusertemp cache
 wait=end
