@@ -1,17 +1,10 @@
 #!/bin/bash
 
-# There's something wrong with d-bus invocation,
-# so we are doing a rather dirty forced-launch
-# before the real startactive is run
+#make sure org.kde.plasma.core can be imported
+export QML_IMPORT_PATH=/usr/lib/kde4/imports/
 
-#pkill -u ${USER} dbus-launch
-#pkill -u ${USER} dbus-daemon
-
-#unset DBUS_SESSION_BUS_ADDRESS
-#unset DBUS_SESSION_BUS_PID
-
-#export `dbus-launch`
-#sleep 3
+#enable maliit plugin
+export QT_IM_MODULE=Maliit
 
 env > /tmp/startactive-${USER}.env
 if [ -f /etc/mer-release ]; then
