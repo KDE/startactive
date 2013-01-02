@@ -23,4 +23,4 @@ Requires=dbus.socket xorg.target
 
 [Service]
 ExecStart=@KDE4_LIBEXEC_INSTALL_DIR@/lnusertemp cache
-Restart=always
+Type=oneshot

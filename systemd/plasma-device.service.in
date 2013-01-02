@@ -23,4 +23,5 @@ Requires=nepomuk.service activitymanager.service contour.service
 
 [Service]
 ExecStart=@KDE4_BIN_INSTALL_DIR@/plasma-device
+BusName=org.kde.plasma-device
 Restart=always
