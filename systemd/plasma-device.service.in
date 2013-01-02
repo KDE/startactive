@@ -17,10 +17,10 @@
 
 
 [Unit]
-Description=Session manager for KDE
-After=kdeinit.service
-Requires=kdeinit.service nepomuk.service
+Description=The Plasma Active workspace
+After=nepomuk.service
+Requires=nepomuk.service activitymanager.service contour.service
 
 [Service]
-ExecStart=kwrapper4 ksmserver --windowmanager kwinactive_gles
+ExecStart=@KDE4_BIN_INSTALL_DIR@/plasma-device
 Restart=always

@@ -16,14 +16,11 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
-# This module is legacy, only used to start startactive with systemd then start the rest with startactive
-
 [Unit]
-Description=Starts the plasma active session
-After=xorg.target
-Requires=dbus.socket xorg.target
+Description=Contour recommendations daemon
+After=nepomuk.service
+Requires=nepomuk.service
 
 [Service]
-ExecStart=/usr/bin/startactive
+ExecStart=@KDE4_BIN_INSTALL_DIR@/contourd
 Restart=always
-

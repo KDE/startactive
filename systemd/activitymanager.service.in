@@ -17,10 +17,10 @@
 
 
 [Unit]
-Description=Contour recommendations daemon
+Description=Daemon to keep track of user activities
 After=nepomuk.service
 Requires=nepomuk.service
 
 [Service]
-ExecStart=contourd
+ExecStart=@KDE4_BIN_INSTALL_DIR@/kactivitymanagerd
 Restart=always

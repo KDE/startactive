@@ -22,5 +22,5 @@ After=xorg.target
 Requires=dbus.socket xorg.target lnusertemp-tmp.service lnusertemp-socket.service lnusertemp-cache.service
 
 [Service]
-ExecStart=setup-kde-skel
+ExecStart=@KDE4_BIN_INSTALL_DIR@/setup-kde-skel
 Restart=always

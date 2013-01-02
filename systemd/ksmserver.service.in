@@ -17,10 +17,10 @@
 
 
 [Unit]
-Description=Nepomuk semantic metadata server
+Description=Session manager for KDE
 After=kdeinit.service
-Requires=setup-kde-skel.service kdeinit.service
+Requires=kdeinit.service nepomuk.service
 
 [Service]
-ExecStart=nepomukserver
+ExecStart=@KDE4_BIN_INSTALL_DIR@/kwrapper4 @KDE4_BIN_INSTALL_DIR@/ksmserver --windowmanager kwinactive_gles
 Restart=always

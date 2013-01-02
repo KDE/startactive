@@ -16,11 +16,14 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
+# This module is legacy, only used to start startactive with systemd then start the rest with startactive
+
 [Unit]
-Description=The Plasma Active workspace
-After=nepomuk.service
-Requires=nepomuk.service activitymanager.service contour.service
+Description=Starts the plasma active session
+After=xorg.target
+Requires=dbus.socket xorg.target
 
 [Service]
-ExecStart=plasma-device
+ExecStart=@KDE4_BIN_INSTALL_DIR@/startactive
 Restart=always
+
