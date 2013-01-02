@@ -14,6 +14,7 @@ include_directories(
 
 add_subdirectory(splash/themes)
 add_subdirectory(modules)
+add_subdirectory(systemd)
 
 set(startactive_SRC
     StartActive.cpp
