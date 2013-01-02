@@ -18,5 +18,4 @@
 
 [Unit]
 Description=Dependencies of a Plasma Active session
-After=plasma-device
-Requires=contour.service ksmserver.service plasma-device.service
+

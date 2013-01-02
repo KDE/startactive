@@ -18,11 +18,9 @@
 
 [Unit]
 Description=The Plasma Active workspace
-After=nepomuk.service
-Requires=nepomuk.service activitymanager.service contour.service
+After=nepomuk.service ksmserver.service
 
 [Service]
 ExecStart=@KDE4_BIN_INSTALL_DIR@/plasma-device
-BusName=org.kde.plasma-device
 Restart=always
 Type=forking
