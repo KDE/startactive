@@ -23,4 +23,5 @@ Requires=kdeinit.service nepomuk.service
 
 [Service]
 ExecStart=@KDE4_BIN_INSTALL_DIR@/kwrapper4 @KDE4_BIN_INSTALL_DIR@/ksmserver --windowmanager kwinactive_gles
+BusName=org.kde.ksmserver
 Restart=always

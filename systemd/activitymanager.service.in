@@ -23,4 +23,5 @@ Requires=nepomuk.service
 
 [Service]
 ExecStart=@KDE4_BIN_INSTALL_DIR@/kactivitymanagerd
+BusName=org.kde.kactivitymanagerd
 Restart=always

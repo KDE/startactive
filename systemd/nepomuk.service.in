@@ -23,4 +23,5 @@ Requires=setup-kde-skel.service kdeinit.service
 
 [Service]
 ExecStart=@KDE4_BIN_INSTALL_DIR@/nepomukserver
+BusName=org.kde.nepomuk.services.nepomukqueryservice
 Restart=always
