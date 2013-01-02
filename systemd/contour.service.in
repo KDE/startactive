@@ -22,6 +22,6 @@ After=nepomuk.service
 Requires=nepomuk.service
 
 [Service]
-ExecStart=@KDE4_BIN_INSTALL_DIR@/contourd
+ExecStart=@KDE4_BIN_INSTALL_DIR@/contour
 BusName=org.kde.Contour
 Restart=always

@@ -25,3 +25,4 @@ Requires=nepomuk.service activitymanager.service contour.service
 ExecStart=@KDE4_BIN_INSTALL_DIR@/plasma-device
 BusName=org.kde.plasma-device
 Restart=always
+Type=forking
