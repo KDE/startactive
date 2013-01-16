@@ -33,6 +33,13 @@
 
 #include "splash/SplashWindow.h"
 
+#include <KConfig>
+#include <KConfigGroup>
+
+#include <QX11Info>
+#include <X11/Xlib.h>
+#include <X11/Xcursor/Xcursor.h>
+
 /**
  *
  */
@@ -94,6 +101,20 @@ StartActive::StartActive(/*Display * display,*/ int argc, char ** argv)
     : QApplication(/*display,*/ argc, argv),
       d(new Private(this))
 {
+    KConfig c("kcminputrc");
+    KConfigGroup cg(&c, "Mouse");
+    const QString theme = cg.readEntry("cursorTheme", "plasmamobilemouse");
+
+    // Apply the KDE cursor theme to ourselves
+    XcursorSetTheme(QX11Info::display(), theme.toLatin1() );
+
+    // Load the default cursor from the theme and apply it to the root window.
+    Cursor handle = XcursorLibraryLoadCursor(QX11Info::display(), "left_ptr");
+    XDefineCursor(QX11Info::display(), QX11Info::appRootWindow(), handle);
+    XFreeCursor(QX11Info::display(), handle); // Don't leak the cursor
+
+    setenv("XCURSOR_THEME", theme.toLatin1(), 1);
+
     d->time.start();
     d->initEnvironment();
     d->initDBus();

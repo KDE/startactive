@@ -60,10 +60,15 @@ target_link_libraries(
     ${X11_LIBRARIES}
     ${QT_QTDECLARATIVE_LIBRARY}
     ${QT_QTGUI_LIBRARY}
+    ${KDE4_KDECORE_LIBS}
 
-    # ${QT_QTSCRIPT_LIBRARY}
-    # ${KDE4_KDECORE_LIBS}
+    ${X11_Xrender_LIB}
+    ${X11_X11_LIB}
 )
+
+if (X11_Xcursor_FOUND)
+   target_link_libraries(startactive.bin ${X11_Xcursor_LIB})
+endif (X11_Xcursor_FOUND)
 
 message(${INSTALL_TARGETS_DEFAULT_ARGS})
 
