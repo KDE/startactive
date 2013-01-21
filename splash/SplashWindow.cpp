@@ -57,6 +57,7 @@ void SplashWindow::init()
         s_instance->setGeometry(QApplication::desktop()->screenGeometry());
         s_instance->setAttribute(Qt::WA_QuitOnClose, false);
         s_instance->setAttribute(Qt::WA_QuitOnClose, false);
+        s_instance->setCursor(Qt::BlankCursor);
 
     }
 }
