@@ -6,7 +6,8 @@ export QML_IMPORT_PATH=/usr/lib/kde4/imports/
 #enable maliit plugin
 export QT_IM_MODULE=Maliit
 
-/usr/bin/maliit-server &
+#maliit-server should auto start
+#/usr/bin/maliit-server &
 
 env > /tmp/startactive-${USER}.env
 if [ -f /etc/mer-release ]; then
