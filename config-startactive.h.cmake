@@ -1,9 +1,0 @@
-#cmakedefine MODULE_PATH "@MODULE_PATH@"
-
-#cmakedefine KDE_DEFAULT_HOME "@KDE_DEFAULT_HOME@"
-
-#cmakedefine STARTACTIVE_DATA_PATH "@STARTACTIVE_DATA_PATH@"
-
-#cmakedefine KDE_DATADIR "@DATA_INSTALL_DIR@"
-
-#define STAGE_COUNT 7

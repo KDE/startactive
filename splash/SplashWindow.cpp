@@ -19,112 +19,96 @@
 
 #include "SplashWindow.h"
 
-#include <QApplication>
-#include <QDeclarativeContext>
-#include <QDesktopWidget>
-#include <QGraphicsObject>
+#include <QGuiApplication>
+#include <QQmlContext>
+#include <QQuickItem>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QTimer>
-#include <QDebug>
+#include <QStandardPaths>
+#include <QSurfaceFormat>
+#include <KSharedConfig>
+#include <KConfigGroup>
 
-// #include <X11/Xlib.h>
+#include <KPackage/Package>
+#include <KPackage/PackageLoader>
 
-#include "SystemInfo.h"
-
-SplashWindow * SplashWindow::s_instance = NULL;
-
-void SplashWindow::init()
+SplashWindow::SplashWindow(bool testing, bool window)
+    : KQuickAddons::QuickViewSharedEngine(),
+      m_stage(0),
+      m_testing(testing),
+      m_window(window)
 {
-    if (!s_instance) {
-        // Display * display = XOpenDisplay(NULL);
+    setColor(Qt::transparent);
+    setDefaultAlphaBuffer(true);
+    setClearBeforeRendering(true);
+    setResizeMode(KQuickAddons::QuickViewSharedEngine::SizeRootObjectToView);
 
-        // s_instance = new SplashWindow();
-        // s_instance->setStage(1);
-
-        // int sw = WidthOfScreen(ScreenOfDisplay(display, DefaultScreen(display)));
-        // int sh = HeightOfScreen(ScreenOfDisplay(display, DefaultScreen(display)));
-
-        // qDebug() << "SPLASH: size " << sw << sh;
-
-        // s_instance->setGeometry(0, 0, sw, sh);
-        // s_instance->show();
-
-        // XSelectInput(display, DefaultRootWindow(display), SubstructureNotifyMask);
-
-        s_instance = new SplashWindow();
-        s_instance->setStage(1);
-        s_instance->setGeometry(QApplication::desktop()->screenGeometry());
-        s_instance->setAttribute(Qt::WA_QuitOnClose, false);
-        s_instance->setAttribute(Qt::WA_QuitOnClose, false);
-        s_instance->setCursor(Qt::BlankCursor);
-
+    if (!m_window) {
+        setFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
     }
-}
 
-void SplashWindow::close()
-{
-    if (s_instance) s_instance->QDeclarativeView::close();
-}
-
-SplashWindow::SplashWindow()
-    : QDeclarativeView(),
-      m_stage(0)
-{
-    setWindowFlags(
-            Qt::FramelessWindowHint |
-            Qt::WindowStaysOnTopHint
-        );
-
-    setWindowFlags(Qt::X11BypassWindowManagerHint);
-
-    rootContext()->setContextProperty("screenSize", size());
-
-    int id = QApplication::arguments().indexOf("--splash");
-    QString theme = "ActiveAir";
-
-    if (id != -1 && id < QApplication::arguments().size() - 1) {
-        theme = QApplication::arguments()[id + 1];
+    if (!m_testing && !m_window) {
+        if (QGuiApplication::platformName().compare(QLatin1String("xcb"), Qt::CaseInsensitive) == 0) {
+            // X11 specific hint only on X11
+            setFlags(Qt::BypassWindowManagerHint);
+        } else {
+            // on other platforms go fullscreen
+            setWindowState(Qt::WindowFullScreen);
+        }
     }
-    setSource(QUrl(themeDir(theme) + "/main.qml"));
 
-    setStyleSheet("background: #000000; border: none");
+    if (m_testing && !m_window) {
+        setWindowState(Qt::WindowFullScreen);
+    }
+
     //be sure it will be eventually closed
     //FIXME: should never be stuck
-    QTimer::singleShot(30000, this, SLOT(close()));
+    QTimer::singleShot(30000, this, &QWindow::close);
 }
 
 void SplashWindow::setStage(int stage)
 {
-    if (s_instance) {
-        s_instance->m_stage = stage;
+    m_stage = stage;
 
-        s_instance->rootObject()->setProperty("stage", stage);
-
-        if (stage < STAGE_COUNT) {
-            s_instance->show();
-        }
-    }
+    rootObject()->setProperty("stage", stage);
 }
 
-void SplashWindow::resizeEvent(QResizeEvent *event)
+void SplashWindow::keyPressEvent(QKeyEvent *event)
 {
-    Q_UNUSED(event)
-    rootContext()->setContextProperty("screenSize", size());
-    centerOn(rootObject());
+    KQuickAddons::QuickViewSharedEngine::keyPressEvent(event);
+    if (m_testing && !event->isAccepted() && event->key() == Qt::Key_Escape) {
+        close();
+    }
 }
 
 void SplashWindow::mousePressEvent(QMouseEvent *event)
 {
-    QDeclarativeView::mousePressEvent(event);
-    //for mobile devices is better to not hide on click
-    /*if (!event->isAccepted()) {
+    KQuickAddons::QuickViewSharedEngine::mousePressEvent(event);
+    if (m_testing && !event->isAccepted()) {
         close();
-    }*/
+    }
 }
 
-void SplashWindow::closeEvent(QCloseEvent * event)
+void SplashWindow::setGeometry(const QRect& rect)
 {
-    s_instance = NULL;
-    deleteLater();
+    bool oldGeometryEmpty = geometry().isNull();
+    KQuickAddons::QuickViewSharedEngine::setGeometry(rect);
+
+    if (oldGeometryEmpty) {
+
+        KPackage::Package package = KPackage::PackageLoader::self()->loadPackage(QStringLiteral("Plasma/LookAndFeel"));
+        KConfigGroup cg(KSharedConfig::openConfig(QStringLiteral("kdeglobals")), "KDE");
+        const QString packageName = cg.readEntry("LookAndFeelPackage", QString());
+        if (!packageName.isEmpty()) {
+            package.setPath(packageName);
+        };
+
+        const QString theme = QGuiApplication::arguments().at(1);
+        if (!theme.startsWith(QLatin1String("--"))) {
+            package.setPath(theme);
+        }
+
+        setSource(QUrl::fromLocalFile(package.filePath("splashmainscript")));
+    }
 }

@@ -17,7 +17,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "StartActive.h"
+#include "StartPlasma.h"
 
 #include <QDBusConnection>
 #include <QDebug>
@@ -32,5 +32,5 @@ int main(int argc, char *argv[])
     }
 
     // Display * display = XOpenDisplay(NULL);
-    return StartActive(/*display,*/ argc, argv).exec();
+    return StartPlasma(/*display,*/ argc, argv).exec();
 }

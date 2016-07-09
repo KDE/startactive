@@ -20,17 +20,17 @@
 #ifndef STARTACTIVE_H_
 #define STARTACTIVE_H_
 
-#include <QApplication>
+#include <QCoreApplication>
 #include <QDBusConnection>
 
 // #include <X11/Xlib.h>
 
-class StartActive: public QApplication {
+class StartPlasma: public QCoreApplication {
     Q_OBJECT
 
 public:
-    StartActive(/*Display * display,*/ int argc, char ** argv);
-    virtual ~StartActive();
+    StartPlasma(/*Display * display,*/ int argc, char ** argv);
+    virtual ~StartPlasma();
 
 public Q_SLOTS:
     /**

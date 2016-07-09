@@ -20,30 +20,28 @@
 #ifndef SPLASH_WINDOW_H_
 #define SPLASH_WINDOW_H_
 
-#include <QDeclarativeView>
+#include <KQuickAddons/QuickViewSharedEngine>
 
 class QResizeEvent;
 class QMouseEvent;
 class QKeyEvent;
 
-class SplashWindow: public QDeclarativeView {
+class SplashWindow: public KQuickAddons::QuickViewSharedEngine
+{
 public:
-    static void init();
-    static void setStage(int stage);
-    static void close();
+    SplashWindow(bool testing = false, bool window = false);
+
+    void setStage(int stage);
+    virtual void setGeometry(const QRect &rect);
 
 protected:
-    virtual void resizeEvent(QResizeEvent *event);
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void closeEvent(QCloseEvent * event);
+    void keyPressEvent(QKeyEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
 
 private:
-    SplashWindow();
-
     int m_stage;
     bool m_testing;
-
-    static SplashWindow * s_instance;
+    bool m_window;
 };
 
 #endif // SPLASH_WINDOW_H_

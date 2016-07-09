@@ -1,96 +1,97 @@
-project(startactive)
+cmake_minimum_required (VERSION 2.8.12 FATAL_ERROR)
 
-FIND_PACKAGE(Qt4 REQUIRED)
-FIND_PACKAGE(KDE4 REQUIRED)
+project (StartPlasma)
 
-include_directories(
-    ${QT_INCLUDES}
-    ${KDE4_INCLUDES}
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_BINARY_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-)
+include(FeatureSummary)
 
-add_subdirectory(splash/themes)
-add_subdirectory(modules)
-add_subdirectory(systemd)
+# Extra CMake Modules
+find_package (ECM 5.18.0 REQUIRED NO_MODULE)
+set_package_properties (ECM PROPERTIES TYPE REQUIRED DESCRIPTION "Extra CMake Modules." URL "https://projects.kde.org/projects/kdesupport/extra-cmake-modules")
+feature_summary (WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKAGES)
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH})
 
-set(startactive_SRC
-    StartActive.cpp
-    SignalListener.cpp
-    ProcessStarter.cpp
-    splash/SplashWindow.cpp
-    main.cpp
-)
+# Including modules we want to use
+include (KDEInstallDirs)
+include (KDECMakeSettings)
+include (KDECompilerSettings NO_POLICY_SCOPE)
+include (ECMGenerateHeaders)
 
-set(KDE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
-set(MODULE_PATH "${DATA_INSTALL_DIR}/startactive/modules/")
-set(STARTACTIVE_DATA_PATH "${DATA_INSTALL_DIR}/startactive/")
-set(KDE_DATADIR "${DATA_INSTALL_DIR}")
-set(KDE_DEFAULT_HOME ".kde")
+# We need Qt
+set (QT_MIN_VERSION "5.6.1")
+find_package (Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core DBus)
 
-message(${MODULE_PATH})
+# And we also need a few KF5 things for the splash screen
+set (KF5_MIN_VERSION "5.24.0")
+find_package (KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS Package Declarative Config)
 
-configure_file(
-    config-startactive.h.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/config-startactive.h
-)
+set (CMAKE_INCLUDE_CURRENT_DIR ON)
 
-configure_file(
-    env.conf.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/env.conf
-)
+set (STARTPLASMA_DATA_DIR "${KDE_INSTALL_DATADIR_KF5}/startplasma/")
+set (STARTPLASMA_MODULE_DIR "${KDE_INSTALL_DATADIR_KF5}/startplasma/")
 
-qt4_add_dbus_adaptor(
-    startactive_SRC
-    org.kde.StartActive.xml
-    StartActive.h StartActive
-)
 
-kde4_add_executable(
-    startactive.bin
-    ${startactive_SRC}
-)
+# add_subdirectory (splash/themes)
+# add_subdirectory (modules)
+# add_subdirectory (systemd)
 
-target_link_libraries(
-    startactive.bin
-    ${QT_QTCORE_LIBRARY}
-    ${QT_QTDBUS_LIBRARY}
-    ${X11_LIBRARIES}
-    ${QT_QTDECLARATIVE_LIBRARY}
-    ${QT_QTGUI_LIBRARY}
-    ${KDE4_KDECORE_LIBS}
+set (
+   startplasma_SRC
+   StartPlasma.cpp
+   SignalListener.cpp
+   ProcessStarter.cpp
+   splash/SplashWindow.cpp
+   main.cpp
+   )
 
-    ${X11_Xrender_LIB}
-    ${X11_X11_LIB}
-)
+configure_file (
+   config-startplasma.h.cmake
+   ${CMAKE_CURRENT_BINARY_DIR}/config-startplasma.h
+   )
 
-if (X11_Xcursor_FOUND)
-   target_link_libraries(startactive.bin ${X11_Xcursor_LIB})
-endif (X11_Xcursor_FOUND)
+configure_file (
+   env.conf.cmake
+   ${CMAKE_CURRENT_BINARY_DIR}/env.conf
+   )
 
-message(${INSTALL_TARGETS_DEFAULT_ARGS})
+qt5_add_dbus_adaptor (
+   startplasma_SRC
+   org.kde.StartPlasma.xml
+   StartPlasma.h StartPlasma
+   )
 
-install(
-    TARGETS
-    startactive.bin
-    ${INSTALL_TARGETS_DEFAULT_ARGS}
-)
+add_executable (
+   startplasma.bin
+   ${startplasma_SRC}
+   )
 
-install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/env.conf
-    DESTINATION ${STARTACTIVE_DATA_PATH}
-)
+target_link_libraries (
+   startplasma.bin
+   Qt5::Core
+   Qt5::DBus
+   KF5::QuickAddons
+   KF5::Package
+   KF5::ConfigCore
+   )
 
-install(
-    FILES startactive
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
-    PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-)
+install (
+   TARGETS
+   startplasma.bin
+   ${KF5_INSTALL_TARGETS_DEFAULT_ARGS}
+   )
 
-install(
-    FILES setup-kde-skel
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
-    PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-)
+install (
+   FILES ${CMAKE_CURRENT_BINARY_DIR}/env.conf
+   DESTINATION ${STARTPLASMA_DATA_DIR}
+   )
+
+install (
+   FILES startplasma
+   DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
+   PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+   )
+
+install (
+   FILES setup-kde-skel
+   DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
+   PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+   )

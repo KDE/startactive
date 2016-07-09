@@ -18,9 +18,9 @@
  */
 
 #include <QTextStream>
-#include "StartActive.h"
+#include "StartPlasma.h"
 
-#include "startactiveadaptor.h"
+#include "startplasmaadaptor.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -28,7 +28,7 @@
 #include <QSettings>
 
 #include "SignalListener.h"
-#include "config-startactive.h"
+#include "config-startplasma.h"
 #include "ProcessStarter.h"
 
 #include "splash/SplashWindow.h"
@@ -36,16 +36,15 @@
 #include <KConfig>
 #include <KConfigGroup>
 
-#include <QX11Info>
-#include <X11/Xlib.h>
-#include <X11/Xcursor/Xcursor.h>
+#include <memory>
 
-/**
- *
- */
-class StartActive::Private {
+// #include <QX11Info>
+// #include <X11/Xlib.h>
+// #include <X11/Xcursor/Xcursor.h>
+
+class StartPlasma::Private {
 public:
-    Private(StartActive * parent)
+    Private(StartPlasma * parent)
         : q(parent)
     {
     }
@@ -65,12 +64,12 @@ public:
     };
 
     QStringList scheduled;
-    QSet < QString > running;
+    QSet<QString> running;
 
-    QHash < QString, Module * > modules;
-    QHash < QString, QSet < QString > > requires;
-    QHash < QString, QSet < QString > > depends;
-    QList < QSet < QString > > runOrder;
+    QHash<QString, Module*> modules;
+    QHash<QString, QSet<QString>> requires;
+    QHash<QString, QSet<QString>> depends;
+    QList<QSet<QString>> runOrder;
 
     QString modulePattern;
 
@@ -82,23 +81,24 @@ public:
     void initEnvironment();
     void initDBus();
 
-    StartActive * const q;
+    StartPlasma * const q;
+    std::unique_ptr<SplashWindow> splash;
 
     int modulesFinished;
     int stage;
     QTime time;
 };
 
-void StartActive::Private::printLevels()
+void StartPlasma::Private::printLevels()
 {
     // debugging
     for (int level = 0; level < runOrder.size(); level++) {
-        qDebug() << "StartActive:\t" << level << " - " << runOrder[level];
+        qDebug() << "StartPlasma:\t" << level << " - " << runOrder[level];
     }
 }
 
-StartActive::StartActive(/*Display * display,*/ int argc, char ** argv)
-    : QApplication(/*display,*/ argc, argv),
+StartPlasma::StartPlasma(/*Display * display,*/ int argc, char ** argv)
+    : QCoreApplication(/*display,*/ argc, argv),
       d(new Private(this))
 {
     KConfig c("kcminputrc");
@@ -106,12 +106,12 @@ StartActive::StartActive(/*Display * display,*/ int argc, char ** argv)
     const QString theme = cg.readEntry("cursorTheme", "plasmamobilemouse");
 
     // Apply the KDE cursor theme to ourselves
-    XcursorSetTheme(QX11Info::display(), theme.toLatin1() );
+    // XcursorSetTheme(QX11Info::display(), theme.toLatin1() );
 
     // Load the default cursor from the theme and apply it to the root window.
-    Cursor handle = XcursorLibraryLoadCursor(QX11Info::display(), "left_ptr");
-    XDefineCursor(QX11Info::display(), QX11Info::appRootWindow(), handle);
-    XFreeCursor(QX11Info::display(), handle); // Don't leak the cursor
+    // Cursor handle = XcursorLibraryLoadCursor(QX11Info::display(), "left_ptr");
+    // XDefineCursor(QX11Info::display(), QX11Info::appRootWindow(), handle);
+    // XFreeCursor(QX11Info::display(), handle); // Don't leak the cursor
 
     setenv("XCURSOR_THEME", theme.toLatin1(), 1);
 
@@ -125,7 +125,7 @@ StartActive::StartActive(/*Display * display,*/ int argc, char ** argv)
     connect(SignalListener::self(), SIGNAL(signalReceived(int)),
             this, SLOT(quit()));
 
-    d->modulePattern = QString(MODULE_PATH) + "/%1.module";
+    d->modulePattern = QString(STARTPLASMA_MODULE_DIR) + "/%1.module";
 
     int id = arguments().indexOf("--modules");
     if (id != -1 && id < arguments().size() - 1) {
@@ -134,26 +134,26 @@ StartActive::StartActive(/*Display * display,*/ int argc, char ** argv)
         load("active");
     }
 
-    SplashWindow::init();
+    d->splash.reset(new SplashWindow());
 }
 
-StartActive::~StartActive()
+StartPlasma::~StartPlasma()
 {
     delete d;
 }
 
-void StartActive::quit()
+void StartPlasma::quit()
 {
-    qDebug() << "StartActive:\t" << "The system wants us to quit.";
+    qDebug() << "StartPlasma:\t" << "The system wants us to quit.";
 
     // Ignoring at the moment
 
 }
 
-void StartActive::Private::initDBus()
+void StartPlasma::Private::initDBus()
 {
-    qDebug() << "\n\n--- StartActive -----------------------------------------";
-    qDebug() << "StartActive:\t" << "Initializing DBus";
+    qDebug() << "\n\n--- StartPlasma -----------------------------------------";
+    qDebug() << "StartPlasma:\t" << "Initializing DBus";
 
     // Check whether dbus process is running
     if (! ::getenv("DBUS_SESSION_BUS_ADDRESS")) {
@@ -174,54 +174,54 @@ void StartActive::Private::initDBus()
             const QString & key = line.left(pos);
             const QString & value = line.mid(pos + 1);
 
-            qDebug() << "StartActive:\t" << "DBUS" << key << "=" << value;
+            qDebug() << "StartPlasma:\t" << "DBUS" << key << "=" << value;
 
             ::setenv(
-                    key.toAscii(),
-                    value.toAscii(),
+                    key.toLatin1(),
+                    value.toLatin1(),
                     1
                 );
 
         }
     } else {
-        qDebug() << "StartActive:\t" << "DBus already running at:" << ::getenv("DBUS_SESSION_BUS_ADDRESS");
+        qDebug() << "StartPlasma:\t" << "DBus already running at:" << ::getenv("DBUS_SESSION_BUS_ADDRESS");
     }
 
     QDBusConnection dbus = QDBusConnection::sessionBus();
 
-    new StartActiveAdaptor(q);
+    new StartPlasmaAdaptor(q);
 
     // Proper object name
-    dbus.registerObject("/StartActive", q);
+    dbus.registerObject("/StartPlasma", q);
 
     // For the compatibility with kquitapp
     dbus.registerObject("/MainApplication", q);
 }
 
-void StartActive::Private::initEnvironment()
+void StartPlasma::Private::initEnvironment()
 {
-    qDebug() << "\n\n--- StartActive -----------------------------------------";
-    qDebug() << "StartActive:\t" << "Setting environment variables:";
+    qDebug() << "\n\n--- StartPlasma -----------------------------------------";
+    qDebug() << "StartPlasma:\t" << "Setting environment variables:";
 
-    QSettings config(QString(STARTACTIVE_DATA_PATH) + "/env.conf", QSettings::IniFormat);
+    QSettings config(QString(STARTPLASMA_DATA_DIR) + "/env.conf", QSettings::IniFormat);
 
     foreach (const QString & key, config.allKeys()) if (key[0] != '#') {
         QString value = config.value(key).toString();
 
-        qDebug() << "StartActive:\t" << key << "=" << value;
+        qDebug() << "StartPlasma:\t" << key << "=" << value;
 
         ::setenv(
-                key.toAscii(),
-                value.toAscii(),
+                key.toLatin1(),
+                value.toLatin1(),
                 1
             );
 
     }
 }
 
-void StartActive::load(const QString & modules)
+void StartPlasma::load(const QString & modules)
 {
-    qDebug() << "StartActive:\t" << "Loading modules: " << modules;
+    qDebug() << "StartPlasma:\t" << "Loading modules: " << modules;
 
     d->scheduled = modules.split(",");
 
@@ -232,14 +232,14 @@ void StartActive::load(const QString & modules)
     // d->printLevels();
 
     // foreach (const QString & module, d->depends.keys()) {
-    //     qDebug() << "StartActive:\t" << "module" << module << "is a prerequisite of" << d->depends[module];
+    //     qDebug() << "StartPlasma:\t" << "module" << module << "is a prerequisite of" << d->depends[module];
     // }
 
     // foreach (const QString & module, d->requires.keys()) {
-    //     qDebug() << "StartActive:\t" << "module" << module << "depends on" << d->requires[module];
+    //     qDebug() << "StartPlasma:\t" << "module" << module << "depends on" << d->requires[module];
     // }
 
-    // qDebug() << "StartActive:\t" << "\n\n\nSTARTING, total:" << d->modules.keys() << d->modules.size();
+    // qDebug() << "StartPlasma:\t" << "\n\n\nSTARTING, total:" << d->modules.keys() << d->modules.size();
 
     d->modulesFinished = 0;
     d->stage = 0;
@@ -247,7 +247,7 @@ void StartActive::load(const QString & modules)
     d->startFreeModules();
 }
 
-void StartActive::Private::readModuleData(const QString module)
+void StartPlasma::Private::readModuleData(const QString module)
 {
     if (module.isEmpty() || modules.contains(module) || running.contains(module)) return;
 
@@ -303,17 +303,17 @@ void StartActive::Private::readModuleData(const QString module)
     }
 }
 
-void StartActive::Private::startFreeModules()
+void StartPlasma::Private::startFreeModules()
 {
     QSet < QString > starting = runOrder[0];
     runOrder[0].clear();
 
-    qDebug() << "StartActive:\t" << "these are the currently running modules:" << running;
-    qDebug() << "StartActive:\t" << "starting the following modules:" << starting;
+    qDebug() << "StartPlasma:\t" << "these are the currently running modules:" << running;
+    qDebug() << "StartPlasma:\t" << "starting the following modules:" << starting;
 
     // Did we end or we are in a dead-lock
     if (starting.size() == 0 && running.size() == 0) {
-        SplashWindow::close();
+        splash.reset();
 
         int leftCount = 0;
         foreach (const QSet < QString > & left, runOrder) {
@@ -321,11 +321,11 @@ void StartActive::Private::startFreeModules()
         }
 
         if (leftCount > 0) {
-            qDebug() << "StartActive:\t" << "ERROR:" << leftCount << "modules not started - dead-lock detected";
+            qDebug() << "StartPlasma:\t" << "ERROR:" << leftCount << "modules not started - dead-lock detected";
             printLevels();
 
         } else {
-            qDebug() << "StartActive:\t" << "##### Starting finished. We are all live and well (" << time.elapsed() << "ms )";
+            qDebug() << "StartPlasma:\t" << "##### Starting finished. We are all live and well (" << time.elapsed() << "ms )";
         }
 
     } else {
@@ -336,11 +336,11 @@ void StartActive::Private::startFreeModules()
 
 }
 
-void StartActive::Private::startModule(const QString & module)
+void StartPlasma::Private::startModule(const QString & module)
 {
     if (module.isEmpty()) return;
 
-    qDebug() << "StartActive:\t" << "starting module " << module;
+    qDebug() << "StartPlasma:\t" << "starting module " << module;
     Module * data = modules[module];
 
     if (data->wait != DontWait) {
@@ -357,9 +357,9 @@ void StartActive::Private::startModule(const QString & module)
         );
 }
 
-void StartActive::moduleStarted(const QString & module)
+void StartPlasma::moduleStarted(const QString & module)
 {
-    qDebug() << "StartActive:\t" << "module started" << module << d->runOrder.size() << "(" << d->time.elapsed() << "ms )";
+    qDebug() << "StartPlasma:\t" << "module started" << module << d->runOrder.size() << "(" << d->time.elapsed() << "ms )";
     d->modulesFinished++;
 
     d->running -= module;
@@ -368,14 +368,16 @@ void StartActive::moduleStarted(const QString & module)
     if (d->stage != _stage) {
         // send the event to the splash
         d->stage = _stage;
-        SplashWindow::setStage(d->stage);
+        if (d->splash) {
+           d->splash->setStage(d->stage);
+        }
     }
 
     d->printLevels();
 
     d->runOrder[0] -= module;
 
-    qDebug() << "StartActive:\t" << "Modules that depend on the current one:" << d->depends[module];
+    qDebug() << "StartPlasma:\t" << "Modules that depend on the current one:" << d->depends[module];
 
     for (int level = 0; level < d->runOrder.size(); level++) {
         QSet < QString > intersection = d->runOrder[level];

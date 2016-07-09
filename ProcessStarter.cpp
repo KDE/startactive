@@ -100,7 +100,7 @@ void ProcessStarter::processFinished()
     }
 
     QMetaObject::invokeMethod(
-            d->target, d->slot.toAscii(),
+            d->target, d->slot.toLatin1(),
             Qt::DirectConnection,
             Q_ARG(QString, d->id)
         );
