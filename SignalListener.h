@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2011 Ivan Cukic <ivan.cukic(at)kde.org>
+ *   Copyright (C) 2011-2015 Ivan Cukic <ivan.cukic(at)kde.org>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License version 2,
@@ -26,9 +26,7 @@ class SignalListener: public QObject {
     Q_OBJECT
 
 public:
-    virtual ~SignalListener();
-
-    static SignalListener * self();
+    static SignalListener &self();
 
     int registerSignal(int signal);
 
@@ -40,9 +38,6 @@ protected Q_SLOTS:
 
 private:
     SignalListener();
-
-    class Private;
-    Private * const d;
 };
 
 #endif // SIGNALLISTENER_H_

@@ -37,14 +37,16 @@ public Q_SLOTS:
      * Loads the specified modules
      * @param modules coma-separated list of modules
      */
-    void load(const QString & modules);
+    void load(const QString &modules);
 
     /**
      * Stops all modules and quits
      */
     void quit();
 
-    void moduleStarted(const QString & module);
+    void init();
+
+    void moduleStarted(const QString &module);
 
 private:
     class Private;

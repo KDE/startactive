@@ -96,16 +96,17 @@ void SplashWindow::setGeometry(const QRect& rect)
     KQuickAddons::QuickViewSharedEngine::setGeometry(rect);
 
     if (oldGeometryEmpty) {
-
-        KPackage::Package package = KPackage::PackageLoader::self()->loadPackage(QStringLiteral("Plasma/LookAndFeel"));
+        auto package = KPackage::PackageLoader::self()->loadPackage(QStringLiteral("Plasma/LookAndFeel"));
         KConfigGroup cg(KSharedConfig::openConfig(QStringLiteral("kdeglobals")), "KDE");
-        const QString packageName = cg.readEntry("LookAndFeelPackage", QString());
+
+        const auto packageName = cg.readEntry("LookAndFeelPackage", QString());
         if (!packageName.isEmpty()) {
             package.setPath(packageName);
         };
 
-        const QString theme = QGuiApplication::arguments().at(1);
-        if (!theme.startsWith(QLatin1String("--"))) {
+        const auto id = QCoreApplication::arguments().indexOf("--splash-theme");
+        if (id != -1 && id < QCoreApplication::arguments().size() - 1) {
+            const auto theme = QCoreApplication::arguments()[id + 1];
             package.setPath(theme);
         }
 

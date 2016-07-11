@@ -1,18 +1,15 @@
 #!/bin/bash
 
-#make sure org.kde.plasma.core can be imported
-export QML_IMPORT_PATH=/usr/lib/kde4/imports/
+# we have to unset this for Darwin since it will screw up KDE's dynamic-loading
+unset DYLD_FORCE_FLAT_NAMESPACE
 
-#enable maliit plugin
-export QT_IM_MODULE=Maliit
+# This script can be used to source other shell scripts, initialize
+# the environment etc.
 
-#maliit-server should auto start
-#/usr/bin/maliit-server &
-
-env > /tmp/startactive-${USER}.env
+env > /tmp/startplasma-${USER}.env
 if [ -f /etc/mer-release ]; then
-    ck-launch-session startactive.bin 2>&1 | tee /tmp/startactive-${USER}.log
+    ck-launch-session startplasma.bin 2>&1 | tee /tmp/startplasma-${USER}.log
 else
-    startactive.bin 2>&1 | tee /tmp/startactive-${USER}.log
+    startplasma.bin 2>&1 | tee /tmp/startplasma-${USER}.log
 fi
 

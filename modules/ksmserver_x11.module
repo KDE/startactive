@@ -1,0 +1,7 @@
+[Module]
+id=ksmserver
+exec=kwrapper5 ksmserver --windowmanager kwin_x11
+depends=kdeinit
+
+wait=dbus
+dbus=org.kde.ksmserver

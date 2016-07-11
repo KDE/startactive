@@ -3,14 +3,14 @@
 # installation the setup will be skipt.
 
 
-if [ -f "${HOME}/.kde/share/config/plasma-device-appletsrc" ]; then
-   echo "${HOME}/.kde/share/config/plasma-device-appletsrc already exists, will not overwrite"
-else
-   #enable the active plugin for Maliit
-   gconftool-2 --set "/maliit/onscreen/enabled" --type list --list-type=string [active-keyboard.qml,en_us]
-   gconftool-2 --set "/maliit/onscreen/active" --type list --list-type=string [active-keyboard.qml,en_us]
-   # Copy the /etc/skel
-   if [ ! -d "${HOME}/.kde" ]; then
-       cp -auR /etc/skel/.kde ${HOME}
-   fi
-fi
+# if [ -f "${HOME}/.kde/share/config/plasma-device-appletsrc" ]; then
+#    echo "${HOME}/.kde/share/config/plasma-device-appletsrc already exists, will not overwrite"
+# else
+#    #enable the active plugin for Maliit
+#    gconftool-2 --set "/maliit/onscreen/enabled" --type list --list-type=string [active-keyboard.qml,en_us]
+#    gconftool-2 --set "/maliit/onscreen/active" --type list --list-type=string [active-keyboard.qml,en_us]
+#    # Copy the /etc/skel
+#    if [ ! -d "${HOME}/.kde" ]; then
+#        cp -auR /etc/skel/.kde ${HOME}
+#    fi
+# fi

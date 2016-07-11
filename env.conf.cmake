@@ -1,13 +1,9 @@
 
-XCURSOR_PATH=@KDE_INSTALL_PREFIX@/share/icons::~/.icons:/usr/share/icons:/usr/share/pixmaps:/usr/X11R6/lib/X11/icons
-#XCURSOR_THEME=plasmamobilemouse
-KDE_SESSION_VERSION=4
-KDE_FULL_SESSION=true
-PATH=@KDE_INSTALL_PREFIX@/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
-LD_LIBRARY_PATH=@KDE_INSTALL_PREFIX@/lib:/usr/lib/
-QT_PLUGIN_PATH=@KDE_INSTALL_PREFIX@/lib/kde4/plugins
-QML_IMPORT_PATH=@KDE_INSTALL_PREFIX@/lib/kde4/imports
-QT_IM_MODULE=Maliit
+# You can set additional environment variables in here
 
-# HOME=...
-# KDEHOME=...
+KDE_SESSION_VERSION=5
+KDE_FULL_SESSION=true
+
+XCURSOR_THEME=breeze_cursors
+
+

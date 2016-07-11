@@ -1,0 +1,8 @@
+[Module]
+exec=plasmashell
+
+depends=kactivitymanagerd
+
+wait=dbus
+dbus=org.kde.plasmashell
+

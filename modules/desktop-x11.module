@@ -1,0 +1,3 @@
+[Module]
+depends=plasmashell,ksmserver_x11
+

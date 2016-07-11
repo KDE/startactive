@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2011 Ivan Cukic <ivan.cukic(at)kde.org>
+ *   Copyright (C) 2011-2016 Ivan Cukic <ivan.cukic(at)kde.org>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License version 2,
@@ -17,35 +17,41 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef PROCESSSTARTER_H_
-#define PROCESSSTARTER_H_
+#ifndef MODULE_STARTER_H_
+#define MODULE_STARTER_H_
 
 #include <QObject>
+#include <QProcess>
 
 /**
- * ProcessStarter
+ * ModuleStarter
  */
-class ProcessStarter: public QObject {
+class ModuleStarter: public QObject {
     Q_OBJECT
 
 public:
-    ProcessStarter(
-            const QString & id,
-            const QString & exec,
-            QObject * target,
-            const QString & slot,
-            const QString & dbus = QString()
-            );
-    virtual ~ProcessStarter();
+    ModuleStarter(const QString &id, const QString &exec, QObject *target,
+                   const QString &slot, const QString &dbus = QString());
+
+    void listenForProcessFinished();
+    void listenForDBusRegistered();
 
 private Q_SLOTS:
-    void processFinished();
+    void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void dbusRegistered(const QString &service);
+
+    void notifyListenerImpl();
 
 private:
-    class Private;
-    Private * const d;
+    void notifyListener();
+
+    QString   m_id;
+    QString   m_dbus;
+    QObject  *m_target;
+    QString   m_slot;
+    QProcess *m_process;
 };
 
 
-#endif // PROCESSSTARTER_H_
+#endif // include guard
 

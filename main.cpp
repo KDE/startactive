@@ -24,13 +24,6 @@
 
 int main(int argc, char *argv[])
 {
-    QDBusConnection dbus = QDBusConnection::sessionBus();
-
-    if (!dbus.registerService("org.kde.ActiveStarter")) {
-        qDebug() << "we are already running, quitting";
-        return 0;
-    }
-
-    // Display * display = XOpenDisplay(NULL);
-    return StartPlasma(/*display,*/ argc, argv).exec();
+    StartPlasma app(argc, argv);
+    return app.exec();
 }

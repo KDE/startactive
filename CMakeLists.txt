@@ -26,19 +26,25 @@ find_package (KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS Package Declarative Con
 
 set (CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set (STARTPLASMA_DATA_DIR "${KDE_INSTALL_DATADIR_KF5}/startplasma/")
-set (STARTPLASMA_MODULE_DIR "${KDE_INSTALL_DATADIR_KF5}/startplasma/")
+if (IS_ABSOLUTE ${KDE_INSTALL_DATADIR_KF5})
+   set (STARTPLASMA_DATA_DIR "${KDE_INSTALL_DATADIR_KF5}/startplasma/")
+   set (STARTPLASMA_MODULE_DIR "${KDE_INSTALL_DATADIR_KF5}/startplasma/modules")
+else ()
+   set (STARTPLASMA_DATA_DIR "${CMAKE_INSTALL_PREFIX}/${KDE_INSTALL_DATADIR_KF5}/startplasma/")
+   set (STARTPLASMA_MODULE_DIR "${CMAKE_INSTALL_PREFIX}/${KDE_INSTALL_DATADIR_KF5}/startplasma/modules")
+endif()
 
 
 # add_subdirectory (splash/themes)
-# add_subdirectory (modules)
+add_subdirectory (modules)
 # add_subdirectory (systemd)
 
 set (
    startplasma_SRC
    StartPlasma.cpp
    SignalListener.cpp
-   ProcessStarter.cpp
+   ModuleStarter.cpp
+   Modules.cpp
    splash/SplashWindow.cpp
    main.cpp
    )

@@ -1,0 +1,5 @@
+[Module]
+exec=kactivitymanagerd
+
+wait=dbus
+dbus=org.kde.ActivityManager

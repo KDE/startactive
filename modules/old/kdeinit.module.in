@@ -1,6 +1,6 @@
 [Module]
 id=kdeinit
 #exec=@KDE4_LIBEXEC_INSTALL_DIR@/start_kdeinit_wrapper +kcminit_startup
-exec=@CMAKE_INSTALL_FULL_LIBEXECDIR_KF5@/start_kdeinit_wrapper
+exec=@KDE4_LIBEXEC_INSTALL_DIR@/start_kdeinit_wrapper
 depends=setup-kde-skel
 wait=end
