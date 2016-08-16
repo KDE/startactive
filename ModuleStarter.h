@@ -48,6 +48,7 @@ private Q_SLOTS:
 
 private:
     void notifyListener();
+    void printEnvironment();
 
     QString   m_id;
     QString   m_dbus;

@@ -94,19 +94,27 @@ ModuleStarter::ModuleStarter(QString id, QString exec, QObject *target,
             listenForDBusRegistered();
         }
 
+        printEnvironment();
+
         connect(m_process, &QProcess::errorOccurred,
                 this, [this] (QProcess::ProcessError error) {
                     qDebug() << "Error starting" << m_id << " " << error;
-                    qDebug() << "Environment was:";
-                    for (const auto& item: QProcessEnvironment::systemEnvironment().toStringList()) {
-                        qDebug() << item;
-                    }
+                    printEnvironment();
                 });
 
         qDebug() << "ModuleStarter:\t" << m_id << "exec process" << exec << "wait for" << dbus;
         m_process->start(exec);
 
     }
+}
+
+void ModuleStarter::printEnvironment()
+{
+    qDebug() << "Environment for the module " << m_id << "was";
+    for (const auto& item: m_process->processEnvironment().toStringList()) {
+        qDebug() << item;
+    }
+
 }
 
 void ModuleStarter::listenForProcessFinished()
