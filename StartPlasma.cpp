@@ -273,7 +273,9 @@ void StartPlasma::Private::startModule(const QString &module)
             module,
             data.exec,
             q, "moduleStarted",
-            data.dbus
+            data.dbus,
+            data.envMode,
+            data.env
         );
 }
 

@@ -22,6 +22,9 @@
 
 #include <QObject>
 #include <QProcess>
+#include <QHash>
+
+#include "Modules.h"
 
 /**
  * ModuleStarter
@@ -30,8 +33,9 @@ class ModuleStarter: public QObject {
     Q_OBJECT
 
 public:
-    ModuleStarter(const QString &id, const QString &exec, QObject *target,
-                   const QString &slot, const QString &dbus = QString());
+    ModuleStarter(QString id, QString exec, QObject *target,
+                  QString slot, QString dbus,
+                  Modules::EnvironmentMode envMode, QHash<QString, QVariant> env);
 
     void listenForProcessFinished();
     void listenForDBusRegistered();
@@ -50,6 +54,8 @@ private:
     QObject  *m_target;
     QString   m_slot;
     QProcess *m_process;
+    Modules::EnvironmentMode m_envMode;
+    QHash<QString, QVariant> m_env;
 };
 
 

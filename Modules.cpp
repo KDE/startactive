@@ -40,7 +40,7 @@ Modules::Modules(const QStringList &finalModules)
         ModuleData data;
         data.exec = config.value("Module/exec", QString()).toString();
 
-        const QString waitFor = config.value("Module/wait").toString();
+        const auto waitFor = config.value("Module/wait").toString();
         if (waitFor == "dbus") {
             data.wait = WaitForDbus;
             data.dbus = config.value("Module/dbus", QString()).toString();
@@ -52,6 +52,16 @@ Modules::Modules(const QStringList &finalModules)
             data.wait = DontWait;
 
         }
+
+        const auto envMode = config.value("Module/envMode", "inherit").toString();
+        if (envMode == "inherit") {
+            data.envMode = Modules::EnvironmentMode::Inherit;
+
+        } else if (envMode == "append") {
+            data.envMode = Modules::EnvironmentMode::Append;
+            data.env = config.value("Module/env").toHash();
+        }
+
 
         modules[currentModule] = data;
 

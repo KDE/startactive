@@ -25,10 +25,17 @@
 #include <QStringList>
 #include <QHash>
 #include <QMultiHash>
+#include <QVariant>
 
 class Modules {
 public:
     Modules(const QStringList &finalModules);
+
+    enum class EnvironmentMode {
+        Inherit,
+        Append,
+        Replace
+    };
 
     QStringList freeModules() const;
 
@@ -49,6 +56,8 @@ public:
         QString exec;
         WaitMode wait;
         QString dbus;
+        EnvironmentMode envMode;
+        QHash<QString, QVariant> env;
     };
 
     inline

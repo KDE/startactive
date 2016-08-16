@@ -26,14 +26,16 @@
 #include <QDBusConnectionInterface>
 #include <QDebug>
 
-ModuleStarter::ModuleStarter(const QString &id, const QString &exec,
-                             QObject *target, const QString &slot,
-                             const QString &dbus)
+ModuleStarter::ModuleStarter(QString id, QString exec, QObject *target,
+                             QString slot, QString dbus,
+                             Modules::EnvironmentMode envMode, QHash<QString, QVariant> env)
     : m_id(id)
     , m_dbus(dbus)
     , m_target(target)
     , m_slot(slot)
     , m_process(nullptr)
+    , m_envMode(envMode)
+    , m_env(env)
 {
     if (exec.isEmpty()) {
         // Should we wait for some d-bus service, or do we send the
@@ -50,7 +52,28 @@ ModuleStarter::ModuleStarter(const QString &id, const QString &exec,
     } else {
         m_process = new QProcess(this);
 
-        m_process->setProcessEnvironment(QProcessEnvironment::systemEnvironment());
+        auto specialEnvironment = [this] (QProcessEnvironment &env) {
+            const auto end = m_env.cend();
+            auto i = m_env.cbegin();
+            for (; i != end; ++i) {
+                env.insert(i.key(), i.value().toString());
+            }
+        };
+
+        if (envMode == Modules::EnvironmentMode::Inherit) {
+            m_process->setProcessEnvironment(QProcessEnvironment::systemEnvironment());
+
+        } else if (envMode == Modules::EnvironmentMode::Append) {
+            auto environment = QProcessEnvironment::systemEnvironment();
+            specialEnvironment(environment);
+            m_process->setProcessEnvironment(environment);
+
+        } else {
+            QProcessEnvironment environment;
+            specialEnvironment(environment);
+            m_process->setProcessEnvironment(environment);
+        }
+
         m_process->setProcessChannelMode(QProcess::ForwardedChannels);
         // m_process->closeReadChannel(QProcess::StandardOutput);
         // m_process->closeReadChannel(QProcess::StandardError);
